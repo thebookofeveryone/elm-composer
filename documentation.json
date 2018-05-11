@@ -1,0 +1,87 @@
+[
+  {
+    "name": "Composer.Text.Font.CodePage",
+    "comment": " A [CodePage](https://en.wikipedia.org/wiki/Character_encoding) is an\nassociation between a set of characters to encoding system.\n\nUsually Fonts have glyph information in tables, for example, the table of\nglyph widths. To obtain to the width of a glyph we have to use a CodePage to\nget the index that contains the width in a font table.\n\n@docs CodePage\n\n\n# Quering\n\n@docs codepoint, index\n\n\n# Creating encodings\n\n@docs empty, fromString\n\n",
+    "aliases": [],
+    "types": [
+      {
+        "name": "CodePage",
+        "comment": " An opaque type (or a private type) that contains the mapping between a\ncharacter set and code points (values of an encoding).\n",
+        "args": [],
+        "cases": []
+      }
+    ],
+    "values": [
+      {
+        "name": "codepoint",
+        "comment": " Given a character, return the encoding value of that character, if exists.\n",
+        "type": "Char -> Composer.Text.Font.CodePage.CodePage -> Maybe.Maybe Int"
+      },
+      {
+        "name": "empty",
+        "comment": " An empty CodePage. Useful for testing.\n",
+        "type": "Composer.Text.Font.CodePage.CodePage"
+      },
+      {
+        "name": "fromString",
+        "comment": " Parses a string containing a code page. The format used to represent\nCodePages is a textual representation used by\n[gofpdf](https://github.com/jung-kurt/gofpdf). Here is a\n[CodePage Example](https://github.com/jung-kurt/gofpdf/blob/master/font/cp1250.map)\nfile.\n",
+        "type": "String -> Result.Result String Composer.Text.Font.CodePage.CodePage"
+      },
+      {
+        "name": "index",
+        "comment": " Given an encoding value (or code point) returns the character associated to\nthat value, if exists.\n",
+        "type": "Int -> Composer.Text.Font.CodePage.CodePage -> Maybe.Maybe Char"
+      }
+    ],
+    "generated-with-elm-version": "0.18.0"
+  },
+  {
+    "name": "Composer.Text.Font",
+    "comment": " TODO\n\n@docs BoundingBox, Description, Font, Type, decoder\n\n",
+    "aliases": [
+      {
+        "name": "BoundingBox",
+        "comment": " TODO -\n",
+        "args": [],
+        "type": "{ xMax : Float, xMin : Float, yMax : Float, yMin : Float }"
+      },
+      {
+        "name": "Description",
+        "comment": " TODO -\n",
+        "args": [],
+        "type": "{ ascent : Float , boundingBox : Composer.Text.Font.BoundingBox , capHeight : Float , descent : Float , italicAngle : Float , missingWidth : Float }"
+      },
+      {
+        "name": "Font",
+        "comment": " TODO -\n",
+        "args": [],
+        "type": "{ description : Composer.Text.Font.Description , name : String , type_ : Composer.Text.Font.Type }"
+      }
+    ],
+    "types": [
+      {
+        "name": "Type",
+        "comment": " TODO -\n",
+        "args": [],
+        "cases": [
+          [
+            "TrueType",
+            []
+          ],
+          [
+            "OpenType",
+            []
+          ]
+        ]
+      }
+    ],
+    "values": [
+      {
+        "name": "decoder",
+        "comment": " TODO -\n",
+        "type": "Json.Decode.Decoder Composer.Text.Font.Font"
+      }
+    ],
+    "generated-with-elm-version": "0.18.0"
+  }
+]
