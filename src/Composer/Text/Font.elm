@@ -1,32 +1,41 @@
 module Composer.Text.Font
     exposing
-        ( BoundingBox
-        , Description
+        ( Description
         , Font
         , Type(..)
         , decoder
         )
 
-{-| TODO
+{-| A module for reading [font](https://en.wikipedia.org/wiki/Computer_font)
+descriptions.
 
-@docs BoundingBox, Description, Font, Type, decoder
+Composer only need to known about some font properties in order to layout text.
+
+This module cannot open standard font files, like TrueType (ttf), OpenType
+(otf), etc. Instead a JSON definition should be provided. The format of this
+definition is the same used by the
+[gofpdf](https://godoc.org/github.com/jung-kurt/gofpdf#hdr-Nonstandard_Fonts)
+project. Use the `makefont` utility provided by *gofpdf* to create this
+definitions.
+
+@docs Description, Font, Type, decoder
 
 -}
 
+import Composer.Geometry exposing (BoundingBox)
 import Json.Decode as JD exposing (Decoder)
 
 
-{-| TODO -
--}
-type alias BoundingBox =
-    { xMax : Float
-    , xMin : Float
-    , yMax : Float
-    , yMin : Float
-    }
+{-| A description containing information common to all font glyphs.
 
+  - `ascent`: the distance above the baseline for singled spaced text.
+  - `boundingBox`: a bounding box that can contains any glyph.
+  - `capHeight`: the height of a capital letter above the baseline
+  - `descent`: the distance below the baseline for singled spaced text.
+  - `italicAngle`: the angle of the italic version of the font.
+  - `missingWidth`: the width we should assume for a glyph not found in the
+    font.
 
-{-| TODO -
 -}
 type alias Description =
     -- ignored: Flags, StemV
@@ -39,7 +48,12 @@ type alias Description =
     }
 
 
-{-| TODO -
+{-| A font record.
+
+  - `description`: common information for all glyphs.
+  - `name`: the font name, in English.
+  - `type_`: the underlying font type.
+
 -}
 type alias Font =
     -- ignored: Up (Underline Position), Ut (Underline Thickness),
@@ -50,14 +64,16 @@ type alias Font =
     }
 
 
-{-| TODO -
+{-| The format type of type.
 -}
 type Type
     = TrueType
     | OpenType
 
 
-{-| TODO -
+{-| The JSON decoder for a Font. The
+[gofpdf](https://godoc.org/github.com/jung-kurt/gofpdf#hdr-Nonstandard_Fonts)
+format is used.
 -}
 decoder : Decoder Font
 decoder =
