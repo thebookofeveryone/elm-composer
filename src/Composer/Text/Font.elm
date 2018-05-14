@@ -22,6 +22,7 @@ definitions.
 
 -}
 
+import Array exposing (Array)
 import Composer.Geometry exposing (BoundingBox)
 import Json.Decode as JD exposing (Decoder)
 
@@ -53,6 +54,8 @@ type alias Description =
   - `description`: common information for all glyphs.
   - `name`: the font name, in English.
   - `type_`: the underlying font type.
+  - `widths`: the width of each glyph, use a [CodePage] to resolve a character
+    index.
 
 -}
 type alias Font =
@@ -61,6 +64,7 @@ type alias Font =
     { description : Description
     , name : String
     , type_ : Type
+    , widths : Array Float
     }
 
 
@@ -77,10 +81,11 @@ format is used.
 -}
 decoder : Decoder Font
 decoder =
-    JD.map3 Font
+    JD.map4 Font
         (JD.field "Desc" descriptionDecoder)
         (JD.field "Name" JD.string)
         (JD.field "Tp" typeDecoder)
+        (JD.field "Cw" <| JD.map Array.fromList <| JD.list JD.float)
 
 
 boundingBoxDecoder : Decoder BoundingBox
