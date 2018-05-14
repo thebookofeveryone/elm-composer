@@ -1,4 +1,4 @@
-module Helpers.Cp1252 exposing (codePage)
+module Fixtures.Cp1252 exposing (codePage)
 
 import Composer.Text.Font.CodePage as CodePage exposing (CodePage)
 
