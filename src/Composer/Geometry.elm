@@ -1,4 +1,4 @@
-module Composer.Geometry exposing (BoundingBox)
+module Composer.Geometry exposing (BoundingBox, Size)
 
 {-| Some geometry basics.
 
@@ -15,4 +15,12 @@ type alias BoundingBox =
     , xMin : Float
     , yMax : Float
     , yMin : Float
+    }
+
+
+{-| A width and height pair.
+-}
+type alias Size =
+    { width : Float
+    , height : Float
     }
