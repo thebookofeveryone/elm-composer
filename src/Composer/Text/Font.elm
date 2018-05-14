@@ -4,6 +4,7 @@ module Composer.Text.Font
         , Font
         , Type(..)
         , decoder
+        , empty
         )
 
 {-| A module for reading [font](https://en.wikipedia.org/wiki/Computer_font)
@@ -18,7 +19,7 @@ definition is the same used by the
 project. Use the `makefont` utility provided by *gofpdf* to create this
 definitions.
 
-@docs Description, Font, Type, decoder
+@docs Description, Font, Type, decoder, empty
 
 -}
 
@@ -73,6 +74,29 @@ type alias Font =
 type Type
     = TrueType
     | OpenType
+
+
+{-| An empty Font. Useful for testing.
+-}
+empty : Font
+empty =
+    { description =
+        { ascent = 0
+        , boundingBox =
+            { xMax = 0
+            , xMin = 0
+            , yMax = 0
+            , yMin = 0
+            }
+        , capHeight = 0
+        , descent = 0
+        , italicAngle = 0
+        , missingWidth = 0
+        }
+    , name = ""
+    , type_ = TrueType
+    , widths = Array.empty
+    }
 
 
 {-| The JSON decoder for a Font. The
