@@ -1,5 +1,6 @@
 module FontDecoder exposing (suite)
 
+import Array
 import Composer.Text.Font as Font
 import Expect as E
 import Helpers.Result exposing (mapWithDefault)
@@ -33,7 +34,7 @@ suite =
                      },
                      "Up":-274,
                      "Ut":50,
-                     "Cw":[ 365, 365, 365, 365, 365, 365, 365, 365, 365 ],
+                     "Cw":[ 365, 365, 365, 360, 365, 365, 365, 365, 365 ],
                      "Enc":"cp1252",
                      "Diff":"",
                      "File":"",
@@ -56,6 +57,7 @@ suite =
                         , mapWithDefault 0 (.description >> .descent) >> E.equal -200
                         , mapWithDefault 0 (.description >> .italicAngle) >> E.equal 0.5
                         , mapWithDefault 0 (.description >> .missingWidth) >> E.equal 365
+                        , mapWithDefault 0 (.widths >> Array.get 3 >> Maybe.withDefault 0) >> E.equal 360
                         , mapWithDefault "" .name >> E.equal "Pattaya-Regular"
                         , mapWithDefault Font.OpenType .type_ >> E.equal Font.TrueType
                         ]
