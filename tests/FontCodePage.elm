@@ -1,6 +1,6 @@
-module FontEncoding exposing (suite)
+module FontCodePage exposing (suite)
 
-import Composer.Text.Font.Encoding as Encoding exposing (Encoding)
+import Composer.Text.Font.CodePage as CodePage exposing (CodePage)
 import Expect as E
 import Helpers.Result as Result
 import Test as T exposing (Test)
@@ -22,15 +22,15 @@ suite =
                   !62 U+0062 b
                   !63 U+0063 c
                 """
-                    |> Encoding.fromString
+                    |> CodePage.fromString
                     |> E.all
-                        [ mapWithEmpty >> Encoding.index '?' >> E.equal (Just 0x3F)
-                        , mapWithEmpty >> Encoding.index 'a' >> E.equal (Just 0x61)
-                        , mapWithEmpty >> Encoding.codepoint 0x61 >> E.equal (Just 'a')
+                        [ mapWithEmpty >> CodePage.codepoint '?' >> E.equal (Just 0x3F)
+                        , mapWithEmpty >> CodePage.codepoint 'a' >> E.equal (Just 0x61)
+                        , mapWithEmpty >> CodePage.index 0x61 >> E.equal (Just 'a')
                         ]
         ]
 
 
-mapWithEmpty : Result err Encoding -> Encoding
+mapWithEmpty : Result err CodePage -> CodePage
 mapWithEmpty =
-    Result.mapWithDefault Encoding.empty identity
+    Result.mapWithDefault CodePage.empty identity
