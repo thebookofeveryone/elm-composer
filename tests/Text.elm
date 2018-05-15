@@ -31,15 +31,15 @@ font =
             \() ->
                 OpenSans.font
                     |> E.all
-                        [ .description >> .ascent >> E.equal 765
-                        , .description >> .boundingBox >> .xMax >> E.equal 1204
-                        , .description >> .boundingBox >> .xMin >> E.equal -550
-                        , .description >> .boundingBox >> .yMax >> E.equal 1048
-                        , .description >> .boundingBox >> .yMin >> E.equal -271
+                        [ .description >> .ascent >> E.equal 800
+                        , .description >> .boundingBox >> .xMax >> E.equal 960
+                        , .description >> .boundingBox >> .xMin >> E.equal -191
+                        , .description >> .boundingBox >> .yMax >> E.equal 931
+                        , .description >> .boundingBox >> .yMin >> E.equal -242
                         , .description >> .capHeight >> E.equal 714
-                        , .description >> .descent >> E.equal -240
+                        , .description >> .descent >> E.equal -200
                         , .description >> .italicAngle >> E.equal 0.01
-                        , .description >> .missingWidth >> E.equal 600
+                        , .description >> .missingWidth >> E.equal 365
                         , .widths >> Array.get 32 >> Maybe.withDefault 0 >> E.equal 260
                         , .name >> E.equal "OpenSans"
                         , .type_ >> E.equal Font.TrueType
@@ -54,6 +54,6 @@ font =
                 \() ->
                     OpenSans.font
                         |> Font.glyphWidth '💩' Cp1252.codePage
-                        |> E.equal 600
+                        |> E.equal 365
             ]
         ]
