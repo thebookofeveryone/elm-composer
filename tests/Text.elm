@@ -44,4 +44,16 @@ font =
                         , .name >> E.equal "OpenSans"
                         , .type_ >> E.equal Font.TrueType
                         ]
+        , T.describe "glyphWidth"
+            [ T.test "returns a known glyph width" <|
+                \() ->
+                    OpenSans.font
+                        |> Font.glyphWidth 'a' Cp1252.codePage
+                        |> E.equal 556
+            , T.test "fallback to default width if an unknown glyph is provided" <|
+                \() ->
+                    OpenSans.font
+                        |> Font.glyphWidth '💩' Cp1252.codePage
+                        |> E.equal 600
+            ]
         ]
