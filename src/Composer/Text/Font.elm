@@ -5,6 +5,7 @@ module Composer.Text.Font
         , Type(..)
         , decoder
         , empty
+        , glyphWidth
         )
 
 {-| A module for reading [font](https://en.wikipedia.org/wiki/Computer_font)
@@ -19,13 +20,24 @@ definition is the same used by the
 project. Use the `makefont` utility provided by *gofpdf* to create this
 definitions.
 
-@docs Description, Font, Type, decoder, empty
+@docs Description, Font, Type
+
+
+# Loading Fonts
+
+@docs decoder, empty
+
+
+# Querying Fonts
+
+@docs glyphWidth
 
 -}
 
 import Array exposing (Array)
 import Composer.Geometry exposing (BoundingBox)
 import Json.Decode as JD exposing (Decoder)
+import Composer.Text.Font.CodePage as CodePage exposing (CodePage)
 
 
 {-| A description containing information common to all font glyphs.
@@ -110,6 +122,21 @@ decoder =
         (JD.field "Name" JD.string)
         (JD.field "Tp" typeDecoder)
         (JD.field "Cw" <| JD.map Array.fromList <| JD.list JD.float)
+
+
+{-| Returns the glyph with give an character. A CodePage is also needed to
+resolve the character codepoint.
+-}
+glyphWidth : Char -> CodePage -> Font -> Float
+glyphWidth char codePage font =
+    case CodePage.codepoint char codePage of
+        Nothing ->
+            font.description.missingWidth
+
+        Just codepoint ->
+            font.widths
+                |> Array.get codepoint
+                |> Maybe.withDefault font.description.missingWidth
 
 
 boundingBoxDecoder : Decoder BoundingBox
