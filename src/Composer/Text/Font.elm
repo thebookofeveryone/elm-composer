@@ -37,7 +37,6 @@ definitions.
 -}
 
 import Array exposing (Array)
-import Char
 import Composer.Geometry exposing (BoundingBox)
 import Composer.Text.Font.CodePage as CodePage exposing (CodePage)
 import Dict exposing (Dict)
