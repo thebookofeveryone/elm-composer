@@ -169,7 +169,7 @@ hex =
                 Err err ->
                     P.fail err
         )
-        (P.keep P.oneOrMore <| \chr -> List.member chr hexCharSet)
+        (P.keep P.oneOrMore Char.isHexDigit)
 
 
 
@@ -179,11 +179,6 @@ hex =
 whitespaceCharSet : List Char
 whitespaceCharSet =
     String.toList " \n\x0D\t"
-
-
-hexCharSet : List Char
-hexCharSet =
-    String.toList "0123456789ABCDEFabcdef"
 
 
 extraNameCharSet : List Char
