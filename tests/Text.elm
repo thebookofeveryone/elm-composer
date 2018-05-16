@@ -31,29 +31,29 @@ font =
             \() ->
                 OpenSans.font
                     |> E.all
-                        [ .description >> .ascent >> E.equal 800
+                        [ .description >> .ascent >> E.equal 1048
                         , .description >> .boundingBox >> .xMax >> E.equal 960
                         , .description >> .boundingBox >> .xMin >> E.equal -191
                         , .description >> .boundingBox >> .yMax >> E.equal 931
                         , .description >> .boundingBox >> .yMin >> E.equal -242
                         , .description >> .capHeight >> E.equal 714
-                        , .description >> .descent >> E.equal -200
+                        , .description >> .descent >> E.equal -291
                         , .description >> .italicAngle >> E.equal 0.01
-                        , .description >> .missingWidth >> E.equal 365
+                        , .description >> .missingWidth >> E.equal 530
                         , .widths >> Array.get 32 >> Maybe.withDefault 0 >> E.equal 260
-                        , .name >> E.equal "OpenSans"
+                        , .name >> E.equal "Open Sans"
                         , .type_ >> E.equal Font.TrueType
                         ]
         , T.describe "glyphWidth"
             [ T.test "returns a known glyph width" <|
                 \() ->
-                    OpenSans.font
-                        |> Font.glyphWidth 'a' Cp1252.codePage
+                    'a'
+                        |> Font.glyphWidth Cp1252.codePage OpenSans.font
                         |> E.equal 556
             , T.test "fallback to default width if an unknown glyph is provided" <|
                 \() ->
-                    OpenSans.font
-                        |> Font.glyphWidth '💩' Cp1252.codePage
-                        |> E.equal 365
+                    '💩'
+                        |> Font.glyphWidth Cp1252.codePage OpenSans.font
+                        |> E.equal (.missingWidth <| .description <| OpenSans.font)
             ]
         ]

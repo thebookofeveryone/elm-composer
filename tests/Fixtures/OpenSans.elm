@@ -21,7 +21,7 @@ font =
              "Xmax":960,
              "Ymax":931
           },
-          "ItalicAngle":0,
+          "ItalicAngle":0.01,
           "StemV":70,
           "MissingWidth":530
        },
