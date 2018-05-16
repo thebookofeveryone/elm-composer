@@ -6,7 +6,6 @@ import Composer.Text.Font.CodePage as CodePage
 import Expect as E
 import Fixtures.Cp1252 as Cp1252
 import Fixtures.OpenSans as OpenSans
-import Helpers.Result as Result
 import Test as T exposing (Test)
 
 
