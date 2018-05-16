@@ -56,4 +56,23 @@ font =
                         |> Font.glyphWidth Cp1252.codePage OpenSans.font
                         |> E.equal (.missingWidth <| .description <| OpenSans.font)
             ]
+        , T.describe "kerning"
+            [ T.test "returns a known glyph pair distance" <|
+                \() ->
+                    'e'
+                        |> Font.kerning Cp1252.codePage OpenSans.font 'T'
+                        |> E.equal -70
+            ]
+        , T.describe "stringWidth"
+            [ T.test "returns a known string width" <|
+                \() ->
+                    "foobar"
+                        |> Font.stringWidth Cp1252.codePage OpenSans.font
+                        |> E.equal 3124
+            , T.test "returns zero when the string is empty" <|
+                \() ->
+                    ""
+                        |> Font.stringWidth Cp1252.codePage OpenSans.font
+                        |> E.equal 0
+            ]
         ]
