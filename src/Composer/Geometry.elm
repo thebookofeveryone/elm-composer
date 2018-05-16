@@ -2,7 +2,7 @@ module Composer.Geometry exposing (BoundingBox, Offset, Size)
 
 {-| Some geometry basics.
 
-@docs BoundingBox
+@docs BoundingBox, Offset, Size
 
 -}
 
