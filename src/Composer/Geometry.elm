@@ -1,4 +1,4 @@
-module Composer.Geometry exposing (BoundingBox, Size)
+module Composer.Geometry exposing (BoundingBox, Offset, Size)
 
 {-| Some geometry basics.
 
@@ -15,6 +15,17 @@ type alias BoundingBox =
     , xMin : Float
     , yMax : Float
     , yMin : Float
+    }
+
+
+{-| A set of four dimensions: top, left, bottom and right. Used for offsets,
+padding, margins, etc.
+-}
+type alias Offset =
+    { top : Float
+    , left : Float
+    , bottom : Float
+    , right : Float
     }
 
 
