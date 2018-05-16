@@ -35,9 +35,11 @@ definitions.
 -}
 
 import Array exposing (Array)
+import Char
 import Composer.Geometry exposing (BoundingBox)
-import Json.Decode as JD exposing (Decoder)
 import Composer.Text.Font.CodePage as CodePage exposing (CodePage)
+import Dict exposing (Dict)
+import Json.Decode as JD exposing (Decoder)
 
 
 {-| A description containing information common to all font glyphs.
@@ -65,6 +67,7 @@ type alias Description =
 {-| A font record.
 
   - `description`: common information for all glyphs.
+  - `kernings`: distance between character pairs.
   - `name`: the font name, in English.
   - `type_`: the underlying font type.
   - `widths`: the width of each glyph, use a [CodePage] to resolve a character
@@ -75,6 +78,7 @@ type alias Font =
     -- ignored: Up (Underline Position), Ut (Underline Thickness),
     -- Diff (Encoding Differences), File, Size1, Size2, OriginalSize, N and I.
     { description : Description
+    , kernings : Dict ( Int, Int ) Float
     , name : String
     , type_ : Type
     , widths : Array Float
@@ -105,6 +109,7 @@ empty =
         , italicAngle = 0
         , missingWidth = 0
         }
+    , kernings = Dict.empty
     , name = ""
     , type_ = TrueType
     , widths = Array.empty
@@ -117,8 +122,9 @@ format is used.
 -}
 decoder : Decoder Font
 decoder =
-    JD.map4 Font
+    JD.map5 Font
         (JD.field "Desc" descriptionDecoder)
+        (JD.field "Ck" kerningsDecoder)
         (JD.field "Name" JD.string)
         (JD.field "Tp" typeDecoder)
         (JD.field "Cw" <| JD.map Array.fromList <| JD.list JD.float)
@@ -157,6 +163,42 @@ descriptionDecoder =
         (JD.field "Descent" JD.float)
         (JD.field "ItalicAngle" JD.float)
         (JD.field "MissingWidth" JD.float)
+
+
+kerningsDecoder : Decoder (Dict ( Int, Int ) Float)
+kerningsDecoder =
+    let
+        insertKerningLine : ( String, List Float ) -> Dict ( Int, Int ) Float -> Dict ( Int, Int ) Float
+        insertKerningLine ( indexString, kernList ) dict =
+            case String.toInt indexString of
+                Ok lhs ->
+                    kernList
+                        |> zip
+                        |> List.foldl
+                            (\( rhs, kerning ) acc ->
+                                Dict.insert ( lhs, rhs ) kerning acc
+                            )
+                            dict
+
+                Err _ ->
+                    dict
+
+        zip : List Float -> List ( Int, Float )
+        zip list =
+            list
+                |> List.tail
+                |> Maybe.withDefault []
+                |> List.map2 (,) list
+                |> List.map (Tuple.mapFirst round)
+    in
+        JD.dict (JD.list JD.float)
+            |> JD.andThen
+                (\dict ->
+                    dict
+                        |> Dict.toList
+                        |> List.foldl insertKerningLine Dict.empty
+                        |> JD.succeed
+                )
 
 
 typeDecoder : Decoder Type
