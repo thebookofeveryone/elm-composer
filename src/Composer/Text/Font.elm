@@ -6,6 +6,8 @@ module Composer.Text.Font
         , decoder
         , empty
         , glyphWidth
+        , kerning
+        , stringWidth
         )
 
 {-| A module for reading [font](https://en.wikipedia.org/wiki/Computer_font)
@@ -30,7 +32,7 @@ definitions.
 
 # Querying Fonts
 
-@docs glyphWidth
+@docs glyphWidth, kerning, stringWidth
 
 -}
 
@@ -133,16 +135,56 @@ decoder =
 {-| Returns the glyph with give an character. A CodePage is also needed to
 resolve the character codepoint.
 -}
-glyphWidth : Char -> CodePage -> Font -> Float
-glyphWidth char codePage font =
+glyphWidth : CodePage -> Font -> Char -> Float
+glyphWidth codePage font char =
     case CodePage.codepoint char codePage of
-        Nothing ->
-            font.description.missingWidth
-
         Just codepoint ->
             font.widths
                 |> Array.get codepoint
                 |> Maybe.withDefault font.description.missingWidth
+
+        Nothing ->
+            font.description.missingWidth
+
+
+{-| Returns the [kerning](https://en.wikipedia.org/wiki/Kerning) given a pair of
+chars. A CodePage is also needed to resolve the character codepoint.
+-}
+kerning : CodePage -> Font -> Char -> Char -> Float
+kerning codePage font lhsChar rhsChar =
+    case ( CodePage.codepoint lhsChar codePage, CodePage.codepoint rhsChar codePage ) of
+        ( Just lhsIndex, Just rhsIndex ) ->
+            font.kernings
+                |> Dict.get ( lhsIndex, rhsIndex )
+                |> Maybe.withDefault 0
+
+        _ ->
+            0
+
+
+{-| Returns the with of a given string. This function is similar to glyphWidth
+but also takes into account the glyphs kerning.
+-}
+stringWidth : CodePage -> Font -> String -> Float
+stringWidth codePage font string =
+    let
+        stringList =
+            String.toList string
+
+        glyphListWidth =
+            stringList
+                |> List.map (glyphWidth codePage font)
+                |> List.sum
+
+        kerningListWidth =
+            stringList
+                |> List.tail
+                |> Maybe.withDefault []
+                |> List.map2 (,) stringList
+                |> List.map (\( lhs, rhs ) -> kerning codePage font lhs rhs)
+                |> List.sum
+    in
+        glyphListWidth + kerningListWidth
 
 
 boundingBoxDecoder : Decoder BoundingBox
