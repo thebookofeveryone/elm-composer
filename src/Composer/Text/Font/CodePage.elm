@@ -1,7 +1,7 @@
 module Composer.Text.Font.CodePage
     exposing
         ( CodePage
-        , codepoint
+        , char
         , empty
         , fromString
         , index
@@ -19,7 +19,7 @@ get the index that contains the width in a font table.
 
 # Quering
 
-@docs codepoint, index
+@docs char, index
 
 
 # Creating encodings
@@ -44,18 +44,18 @@ type CodePage
         }
 
 
-{-| Given an encoding value (or code point) returns the character associated to
-that value, if exists.
+{-| Given an index value returns the character associated to that value, if
+exists.
 -}
-index : Int -> CodePage -> Maybe Char
-index index (CodePage { indexes }) =
+char : Int -> CodePage -> Maybe Char
+char index (CodePage { indexes }) =
     Dict.get index indexes
 
 
 {-| Given a character, return the encoding value of that character, if exists.
 -}
-codepoint : Char -> CodePage -> Maybe Int
-codepoint char (CodePage { codepoints }) =
+index : Char -> CodePage -> Maybe Int
+index char (CodePage { codepoints }) =
     Dict.get char codepoints
 
 

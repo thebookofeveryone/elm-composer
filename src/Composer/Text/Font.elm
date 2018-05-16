@@ -136,10 +136,10 @@ resolve the character codepoint.
 -}
 glyphWidth : CodePage -> Font -> Char -> Float
 glyphWidth codePage font char =
-    case CodePage.codepoint char codePage of
-        Just codepoint ->
+    case CodePage.index char codePage of
+        Just index ->
             font.widths
-                |> Array.get codepoint
+                |> Array.get index
                 |> Maybe.withDefault font.description.missingWidth
 
         Nothing ->
@@ -151,7 +151,7 @@ chars. A CodePage is also needed to resolve the character codepoint.
 -}
 kerning : CodePage -> Font -> Char -> Char -> Float
 kerning codePage font lhsChar rhsChar =
-    case ( CodePage.codepoint lhsChar codePage, CodePage.codepoint rhsChar codePage ) of
+    case ( CodePage.index lhsChar codePage, CodePage.index rhsChar codePage ) of
         ( Just lhsIndex, Just rhsIndex ) ->
             font.kernings
                 |> Dict.get ( lhsIndex, rhsIndex )

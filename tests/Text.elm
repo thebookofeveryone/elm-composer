@@ -17,9 +17,9 @@ codePage =
             \() ->
                 Cp1252.codePage
                     |> E.all
-                        [ CodePage.codepoint '?' >> E.equal (Just 0x3F)
-                        , CodePage.codepoint 'a' >> E.equal (Just 0x61)
-                        , CodePage.index 0x61 >> E.equal (Just 'a')
+                        [ CodePage.index '?' >> E.equal (Just 0x3F)
+                        , CodePage.index 'a' >> E.equal (Just 0x61)
+                        , CodePage.char 0x61 >> E.equal (Just 'a')
                         ]
         ]
 
