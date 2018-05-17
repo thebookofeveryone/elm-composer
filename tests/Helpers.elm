@@ -1,10 +1,14 @@
-module Helpers exposing (char)
+module Helpers exposing (char, string)
 
 import Char
 import Expect as E
 import Fuzz as F exposing (Fuzzer)
 import Helpers.Char as Char
+import Helpers.String as String
 import Test as T exposing (Test)
+
+
+-- Char --
 
 
 char : Test
@@ -33,3 +37,25 @@ alphaNumCharFuzzer =
     ]
         |> F.oneOf
         |> F.map Char.fromCode
+
+
+
+-- String --
+
+
+string : Test
+string =
+    T.describe "String Helpers"
+        [ T.describe "wordsAndSpaces"
+            [ T.test "An empty string returns an empty list" <|
+                \() ->
+                    ""
+                        |> String.wordsAndSpaces
+                        |> E.equal []
+            , T.test "Manages a known string" <|
+                \() ->
+                    " to the  moon   "
+                        |> String.wordsAndSpaces
+                        |> E.equal [ " ", "to", " ", "the", "  ", "moon", "   " ]
+            ]
+        ]
