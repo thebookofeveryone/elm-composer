@@ -1,8 +1,8 @@
-module Composer.Geometry exposing (BoundingBox, Offset, Size)
+module Composer.Geometry exposing (BoundingBox, Offset, Size, zeroOffset)
 
 {-| Some geometry basics.
 
-@docs BoundingBox, Offset, Size
+@docs BoundingBox, Offset, zeroOffset, Size
 
 -}
 
@@ -26,6 +26,17 @@ type alias Offset =
     , left : Float
     , bottom : Float
     , right : Float
+    }
+
+
+{-| An offset with all the dimensions set to zero.
+-}
+zeroOffset : Offset
+zeroOffset =
+    { top = 0
+    , left = 0
+    , bottom = 0
+    , right = 0
     }
 
 
