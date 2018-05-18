@@ -52,6 +52,27 @@ text unit =
             Nothing
 
 
+{-| Returns the size of a unit.
+-}
+size : Unit inline -> Size
+size unit =
+    case unit of
+        Word word ->
+            { width =
+                Font.stringWidth word.codePage word.font word.text * word.fontSize
+            , height =
+                (word.font.description.boundingBox.yMax
+                    - word.font.description.boundingBox.yMin
+                )
+                    * word.fontSize
+            }
+
+        Inline inline ->
+            { width = inline.size.width * inline.scale
+            , height = inline.size.height * inline.scale
+            }
+
+
 {-| Converts a string into a bunch of units. A Font, CodePage and FontSize are
 also needed.
 -}
