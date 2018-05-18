@@ -1,7 +1,14 @@
-module Text exposing (font, codePage, unit)
+module Text
+    exposing
+        ( codePage
+        , font
+        , text
+        , unit
+        )
 
 import Array
 import Composer.Geometry as Geometry
+import Composer.Text as Text
 import Composer.Text.Font as Font
 import Composer.Text.Font.CodePage as CodePage
 import Composer.Text.Unit as Unit
@@ -14,7 +21,7 @@ import Test as T exposing (Test)
 
 codePage : Test
 codePage =
-    T.describe "CodePage"
+    T.describe "Text.CodePage Module"
         [ T.test "decodes a valid definition" <|
             \() ->
                 Cp1252.codePage
@@ -28,7 +35,7 @@ codePage =
 
 font : Test
 font =
-    T.describe "Font"
+    T.describe "Text.Font Module"
         [ T.test "decodes a valid json" <|
             \() ->
                 OpenSans.font
@@ -80,9 +87,24 @@ font =
         ]
 
 
+text : Test
+text =
+    T.describe "Text Module"
+        [ T.describe "wrap"
+            [ T.test "returns a well known string wrapped" <|
+                \() ->
+                    "To The Moon"
+                        |> Unit.fromString Cp1252.codePage OpenSans.font 16
+                        |> Text.wrap 50
+                        |> Unit.toParagraph
+                        |> E.equal [ [ "To", " ", "The" ], [ "Moon" ] ]
+            ]
+        ]
+
+
 unit : Test
 unit =
-    T.describe "Text.Unit"
+    T.describe "Text.Unit Module"
         [ T.describe "fromString"
             [ T.test "returns an empty list when an empty string is provided" <|
                 \() ->
