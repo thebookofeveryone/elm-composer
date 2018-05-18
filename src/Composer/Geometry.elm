@@ -1,8 +1,8 @@
-module Composer.Geometry exposing (BoundingBox, Offset, Size, zeroOffset)
+module Composer.Geometry exposing (BoundingBox, Offset, Size, zeroBoundingBox, zeroOffset)
 
 {-| Some geometry basics.
 
-@docs BoundingBox, Offset, zeroOffset, Size
+@docs BoundingBox, zeroBoundingBox, Offset, zeroOffset, Size
 
 -}
 
@@ -15,6 +15,17 @@ type alias BoundingBox =
     , xMin : Float
     , yMax : Float
     , yMin : Float
+    }
+
+
+{-| An BoundingBox with all the dimensions set to zero.
+-}
+zeroBoundingBox : BoundingBox
+zeroBoundingBox =
+    { xMax = 0
+    , xMin = 0
+    , yMax = 0
+    , yMin = 0
     }
 
 
