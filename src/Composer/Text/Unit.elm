@@ -6,6 +6,7 @@ module Composer.Text.Unit
         , isWhitespace
         , size
         , text
+        , toParagraph
         , toString
         )
 
@@ -21,7 +22,7 @@ module Composer.Text.Unit
 
 # Querying Units
 
-@docs isWhitespace, size, text, toString
+@docs isWhitespace, size, text, toParagraph, toString
 
 -}
 
@@ -146,6 +147,22 @@ fromString codePage font fontSize text =
             |> List.map (String.wordsAndSpaces >> List.map toUnit)
             |> List.intersperse (List.singleton LineBreak)
             |> List.concat
+
+
+{-| Returns a textual representation of a list of units. Useful for testing.
+-}
+toParagraph : List (Unit any) -> List (List String)
+toParagraph unitList =
+    unitList
+        |> List.foldr
+            (\unit ( currentLine, lineList ) ->
+                if unit == LineBreak then
+                    ( [], currentLine :: lineList )
+                else
+                    ( (Maybe.withDefault "" <| text unit) :: currentLine, lineList )
+            )
+            ( [], [] )
+        |> \( currentLine, lineList ) -> currentLine :: lineList
 
 
 {-| Returns a textual representation of a unit. Useful for testing.
