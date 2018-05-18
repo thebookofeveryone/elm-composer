@@ -3,6 +3,7 @@ module FontMeasurements exposing (main)
 import Composer.Text.Font as Font exposing (Font)
 import Fixtures.Cp1252 as Cp1252
 import Fixtures.OpenSans as OpenSans
+import Helpers.Svg as Helpers
 import Html as H exposing (Html)
 import Html.Attributes as H
 import Html.Events as H
@@ -64,14 +65,14 @@ view ( text, fontSize ) =
                           """
                         ]
                     ]
-                , rect
+                , Helpers.rect
                     { x = 0.5
                     , y = 0.5
                     , width = 1023.5
                     , height = 255.5
                     , color = "green"
                     }
-                , rect
+                , Helpers.rect
                     { x = ox fontSize text
                     , y = oy fontSize
                     , width = textWidth fontSize text
@@ -87,7 +88,7 @@ view ( text, fontSize ) =
                     ]
                     [ S.text text
                     ]
-                , line
+                , Helpers.line
                     { x = ox fontSize text
                     , y = oy fontSize + lineHeight fontSize + descent fontSize
                     }
@@ -151,33 +152,6 @@ font =
 toPxUnits : Int -> Float -> Float
 toPxUnits fontSize units =
     units / 1000 * (toFloat fontSize)
-
-
-rect : { x : Float, y : Float, width : Float, height : Float, color : String } -> Svg msg
-rect { x, y, width, height, color } =
-    S.rect
-        [ S.fill "none"
-        , S.stroke color
-        , S.strokeWidth "1"
-        , S.width <| toString width
-        , S.height <| toString height
-        , S.x <| toString x
-        , S.y <| toString y
-        ]
-        []
-
-
-line : { x : Float, y : Float } -> { x : Float, y : Float } -> { color : String, size : Float } -> Svg msg
-line p1 p2 { color, size } =
-    S.line
-        [ S.x1 <| toString p1.x
-        , S.y1 <| toString p1.y
-        , S.x2 <| toString p2.x
-        , S.y2 <| toString p2.y
-        , S.stroke color
-        , S.strokeWidth <| toString size
-        ]
-        []
 
 
 
