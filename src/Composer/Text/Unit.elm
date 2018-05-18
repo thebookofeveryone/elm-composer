@@ -66,6 +66,8 @@ embed scale size offset content =
 {-| Returns true if the unit is a whitespace. One of the following conditions
 must be true if a Unit is a whitespace:
 
+  - A word unit with no characters (There is no way to create these kind of
+    units).
   - All characters the text of a Word Unit are white spaces.
   - The fontSize of a Word Unit is less than zero.
   - A Inline Unit with scale equal to zero.
@@ -76,8 +78,9 @@ isWhitespace : Unit inline -> Bool
 isWhitespace unit =
     case unit of
         Word word ->
-            (word.fontSize <= 0)
-                || (String.any (not << Char.isWhitespace) word.text)
+            (String.length word.text <= 0)
+                || (word.fontSize <= 0)
+                || not (String.any (not << Char.isWhitespace) word.text)
 
         Inline inline ->
             (inline.scale == 0)
