@@ -1,11 +1,13 @@
-module Text exposing (font, codePage)
+module Text exposing (font, codePage, unit)
 
 import Array
 import Composer.Text.Font as Font
 import Composer.Text.Font.CodePage as CodePage
+import Composer.Text.Unit as Unit
 import Expect as E
 import Fixtures.Cp1252 as Cp1252
 import Fixtures.OpenSans as OpenSans
+import Fuzz as F
 import Test as T exposing (Test)
 
 
@@ -73,5 +75,63 @@ font =
                     ""
                         |> Font.stringWidth Cp1252.codePage OpenSans.font
                         |> E.equal 0
+            ]
+        ]
+
+
+unit : Test
+unit =
+    T.describe "Text.Unit"
+        [ T.describe "fromString"
+            [ T.test "returns an empty list when an empty string is provided" <|
+                \() ->
+                    ""
+                        |> Unit.fromString Cp1252.codePage OpenSans.font 16
+                        |> E.equal [ [] ]
+            , T.test "manages a well known string" <|
+                \() ->
+                    " To the  Moon   "
+                        |> Unit.fromString Cp1252.codePage OpenSans.font 16
+                        |> List.head
+                        |> Maybe.withDefault []
+                        |> List.map (Unit.text >> Maybe.withDefault "")
+                        |> E.equal [ " ", "To", " ", "the", "  ", "Moon", "   " ]
+            , T.fuzz (F.intRange 1 9999) "keeps spaces at the beginning of the string" <|
+                \spacesLength ->
+                    (String.repeat spacesLength " " ++ "foobar")
+                        |> Unit.fromString Cp1252.codePage OpenSans.font 16
+                        |> E.all
+                            [ List.length >> E.equal 1
+                            , List.head
+                                >> Maybe.withDefault []
+                                >> List.length
+                                >> E.equal 2
+                            , List.head
+                                >> Maybe.withDefault []
+                                >> List.head
+                                >> Maybe.andThen Unit.text
+                                >> Maybe.withDefault ""
+                                >> String.length
+                                >> E.equal spacesLength
+                            ]
+            , T.fuzz (F.intRange 1 9999) "keeps spaces at the end of the string" <|
+                \spacesLength ->
+                    ("foobar" ++ String.repeat spacesLength " ")
+                        |> Unit.fromString Cp1252.codePage OpenSans.font 16
+                        |> E.all
+                            [ List.length >> E.equal 1
+                            , List.head
+                                >> Maybe.withDefault []
+                                >> List.length
+                                >> E.equal 2
+                            , List.head
+                                >> Maybe.withDefault []
+                                >> List.reverse
+                                >> List.head
+                                >> Maybe.andThen Unit.text
+                                >> Maybe.withDefault ""
+                                >> String.length
+                                >> E.equal spacesLength
+                            ]
             ]
         ]
