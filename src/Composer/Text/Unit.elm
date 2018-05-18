@@ -1,6 +1,7 @@
 module Composer.Text.Unit
     exposing
         ( Unit(Word, Inline)
+        , embed
         , fromString
         , size
         , text
@@ -14,7 +15,7 @@ module Composer.Text.Unit
 
 # Creating Units
 
-@docs fromString
+@docs fromString, embed
 
 
 # Querying Units
@@ -45,6 +46,19 @@ type Unit inline
         , scale : Float
         , size : Size
         , offset : Offset
+        }
+
+
+{-| Embed any content into a unit, creating an Inline unit. The size, scale and
+an offset is also needed.
+-}
+embed : Float -> Size -> Offset -> content -> Unit content
+embed scale size offset content =
+    Inline
+        { content = content
+        , scale = scale
+        , size = size
+        , offset = offset
         }
 
 
