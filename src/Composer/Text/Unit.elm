@@ -77,11 +77,10 @@ size unit =
     case unit of
         Word word ->
             { width =
-                Font.stringWidth word.codePage word.font word.text * word.fontSize
+                Font.stringWidth word.codePage word.font word.text / 1000 * word.fontSize
             , height =
-                (word.font.description.boundingBox.yMax
-                    - word.font.description.boundingBox.yMin
-                )
+                (word.font.description.boundingBox.yMax - word.font.description.boundingBox.yMin)
+                    / 1000
                     * word.fontSize
             }
 
