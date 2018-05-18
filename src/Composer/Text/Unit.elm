@@ -1,4 +1,11 @@
-module Composer.Text.Unit exposing (Unit(Word, Inline), fromString, text, toString)
+module Composer.Text.Unit
+    exposing
+        ( Unit(Word, Inline)
+        , fromString
+        , size
+        , text
+        , toString
+        )
 
 {-| A text unit, the basic element for the layout algorithm.
 
@@ -12,13 +19,14 @@ module Composer.Text.Unit exposing (Unit(Word, Inline), fromString, text, toStri
 
 # Querying Units
 
-@docs text, toString
+@docs size, text, toString
 
 -}
 
+import Composer.Geometry exposing (Offset, Size)
 import Composer.Text.Font as Font exposing (Font)
 import Composer.Text.Font.CodePage as CodePage exposing (CodePage)
-import Composer.Geometry exposing (Offset, Size)
+import Helpers.Char as Char
 import Helpers.String as String
 
 
@@ -40,16 +48,26 @@ type Unit inline
         }
 
 
-{-| Returns the text of an Unit, if any.
--}
-text : Unit inline -> Maybe String
-text unit =
-    case unit of
-        Word { text } ->
-            Just text
+{-| Returns true if the unit is a whitespace. One of the following conditions
+must be true if a Unit is a whitespace:
 
-        Inline _ ->
-            Nothing
+  - All characters the text of a Word Unit are white spaces.
+  - The fontSize of a Word Unit is less than zero.
+  - A Inline Unit with scale equal to zero.
+  - A Inline Unit with height or width equal to zero.
+
+-}
+isWhitespace : Unit inline -> Bool
+isWhitespace unit =
+    case unit of
+        Word word ->
+            (word.fontSize <= 0)
+                || (String.any (not << Char.isWhitespace) word.text)
+
+        Inline inline ->
+            (inline.scale == 0)
+                || (inline.size.width == 0)
+                || (inline.size.height == 0)
 
 
 {-| Returns the size of a unit.
@@ -71,6 +89,18 @@ size unit =
             { width = inline.size.width * inline.scale
             , height = inline.size.height * inline.scale
             }
+
+
+{-| Returns the text of an Unit, if any.
+-}
+text : Unit inline -> Maybe String
+text unit =
+    case unit of
+        Word { text } ->
+            Just text
+
+        Inline _ ->
+            Nothing
 
 
 {-| Converts a string into a bunch of units. A Font, CodePage and FontSize are
