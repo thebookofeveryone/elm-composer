@@ -83,27 +83,7 @@ font =
 unit : Test
 unit =
     T.describe "Text.Unit"
-        [ T.describe "size"
-            [ T.test "return the proper size of a well known Word Unit" <|
-                \() ->
-                    "elm-composer"
-                        |> Unit.fromString Cp1252.codePage OpenSans.font 16
-                        |> List.head
-                        |> Maybe.andThen List.head
-                        |> Maybe.map Unit.size
-                        |> Maybe.withDefault { width = 0, height = 0 }
-                        |> E.equal { width = 107.824, height = 18.768 }
-            , T.fuzz (F.tuple3 ( F.float, F.float, F.float )) "return the proper size of any Inline unit" <|
-                \( width, height, scale ) ->
-                    ()
-                        |> Unit.embed scale { width = width, height = height } Geometry.zeroOffset
-                        |> Unit.size
-                        |> E.equal
-                            { width = width * scale
-                            , height = height * scale
-                            }
-            ]
-        , T.describe "fromString"
+        [ T.describe "fromString"
             [ T.test "returns an empty list when an empty string is provided" <|
                 \() ->
                     ""
@@ -154,5 +134,25 @@ unit =
                                 >> String.length
                                 >> E.equal spacesLength
                             ]
+            ]
+        , T.describe "size"
+            [ T.test "return the proper size of a well known Word Unit" <|
+                \() ->
+                    "elm-composer"
+                        |> Unit.fromString Cp1252.codePage OpenSans.font 16
+                        |> List.head
+                        |> Maybe.andThen List.head
+                        |> Maybe.map Unit.size
+                        |> Maybe.withDefault { width = 0, height = 0 }
+                        |> E.equal { width = 107.824, height = 18.768 }
+            , T.fuzz (F.tuple3 ( F.float, F.float, F.float )) "return the proper size of any Inline unit" <|
+                \( width, height, scale ) ->
+                    ()
+                        |> Unit.embed scale { width = width, height = height } Geometry.zeroOffset
+                        |> Unit.size
+                        |> E.equal
+                            { width = width * scale
+                            , height = height * scale
+                            }
             ]
         ]
