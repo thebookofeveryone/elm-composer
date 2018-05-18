@@ -88,13 +88,11 @@ unit =
                 \() ->
                     ""
                         |> Unit.fromString Cp1252.codePage OpenSans.font 16
-                        |> E.equal [ [] ]
+                        |> E.equal []
             , T.test "manages a well known string" <|
                 \() ->
                     " To the  Moon   "
                         |> Unit.fromString Cp1252.codePage OpenSans.font 16
-                        |> List.head
-                        |> Maybe.withDefault []
                         |> List.map (Unit.text >> Maybe.withDefault "")
                         |> E.equal [ " ", "To", " ", "the", "  ", "Moon", "   " ]
             , T.fuzz (F.intRange 1 9999) "keeps spaces at the beginning of the string" <|
@@ -102,14 +100,8 @@ unit =
                     (String.repeat spacesLength " " ++ "foobar")
                         |> Unit.fromString Cp1252.codePage OpenSans.font 16
                         |> E.all
-                            [ List.length >> E.equal 1
+                            [ List.length >> E.equal 2
                             , List.head
-                                >> Maybe.withDefault []
-                                >> List.length
-                                >> E.equal 2
-                            , List.head
-                                >> Maybe.withDefault []
-                                >> List.head
                                 >> Maybe.andThen Unit.text
                                 >> Maybe.withDefault ""
                                 >> String.length
@@ -120,14 +112,8 @@ unit =
                     ("foobar" ++ String.repeat spacesLength " ")
                         |> Unit.fromString Cp1252.codePage OpenSans.font 16
                         |> E.all
-                            [ List.length >> E.equal 1
-                            , List.head
-                                >> Maybe.withDefault []
-                                >> List.length
-                                >> E.equal 2
-                            , List.head
-                                >> Maybe.withDefault []
-                                >> List.reverse
+                            [ List.length >> E.equal 2
+                            , List.reverse
                                 >> List.head
                                 >> Maybe.andThen Unit.text
                                 >> Maybe.withDefault ""
@@ -142,7 +128,6 @@ unit =
                         |> String.repeat count
                         |> Unit.fromString Cp1252.codePage OpenSans.font 16
                         |> List.head
-                        |> Maybe.andThen List.head
                         |> Maybe.map Unit.isWhitespace
                         |> E.equal (Just True)
             , T.test "detects Inline units with scale equal to zero" <|
@@ -170,7 +155,6 @@ unit =
                     "elm-composer"
                         |> Unit.fromString Cp1252.codePage OpenSans.font 16
                         |> List.head
-                        |> Maybe.andThen List.head
                         |> Maybe.map Unit.size
                         |> Maybe.withDefault { width = 0, height = 0 }
                         |> E.equal { width = 107.824, height = 18.768 }

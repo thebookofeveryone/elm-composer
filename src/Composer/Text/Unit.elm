@@ -1,6 +1,6 @@
 module Composer.Text.Unit
     exposing
-        ( Unit(Word, Inline)
+        ( Unit(Inline, LineBreak, Word)
         , embed
         , fromString
         , isWhitespace
@@ -33,20 +33,22 @@ import Helpers.String as String
 
 
 {-| A basic unit for the text layout algorithm. Usually this a non divisible
-word, but it can also be in-line objects like, for example, images.
+word, but it can also be in-line objects like, for example, images or a line
+break.
 -}
 type Unit inline
-    = Word
-        { codePage : CodePage
-        , font : Font
-        , fontSize : Float
-        , text : String
-        }
-    | Inline
+    = Inline
         { content : inline
         , scale : Float
         , size : Size
         , offset : Offset
+        }
+    | LineBreak
+    | Word
+        { codePage : CodePage
+        , font : Font
+        , fontSize : Float
+        , text : String
         }
 
 
@@ -72,6 +74,7 @@ must be true if a Unit is a whitespace:
   - The fontSize of a Word Unit is less than zero.
   - A Inline Unit with scale equal to zero.
   - A Inline Unit with height or width equal to zero.
+  - Is a line break.
 
 -}
 isWhitespace : Unit inline -> Bool
@@ -81,6 +84,9 @@ isWhitespace unit =
             (String.length word.text <= 0)
                 || (word.fontSize <= 0)
                 || not (String.any (not << Char.isWhitespace) word.text)
+
+        LineBreak ->
+            True
 
         Inline inline ->
             (inline.scale == 0)
@@ -102,6 +108,9 @@ size unit =
                     * word.fontSize
             }
 
+        LineBreak ->
+            { width = 0, height = 0 }
+
         Inline inline ->
             { width = inline.size.width * inline.scale
             , height = inline.size.height * inline.scale
@@ -116,6 +125,9 @@ text unit =
         Word { text } ->
             Just text
 
+        LineBreak ->
+            Nothing
+
         Inline _ ->
             Nothing
 
@@ -123,7 +135,7 @@ text unit =
 {-| Converts a string into a bunch of units. A Font, CodePage and FontSize are
 also needed.
 -}
-fromString : CodePage -> Font -> Float -> String -> List (List (Unit any))
+fromString : CodePage -> Font -> Float -> String -> List (Unit any)
 fromString codePage font fontSize text =
     let
         toUnit word =
@@ -132,6 +144,8 @@ fromString codePage font fontSize text =
         text
             |> String.lines
             |> List.map (String.wordsAndSpaces >> List.map toUnit)
+            |> List.intersperse (List.singleton LineBreak)
+            |> List.concat
 
 
 {-| Returns a textual representation of a unit. Useful for testing.
@@ -139,8 +153,11 @@ fromString codePage font fontSize text =
 toString : Unit any -> String
 toString unit =
     case unit of
-        Word { font, fontSize, text } ->
-            "<word \"" ++ text ++ "\" (" ++ font.name ++ ", " ++ Basics.toString fontSize ++ ")>"
-
         Inline { size, scale } ->
             "<inline (" ++ Basics.toString size.width ++ "x" ++ Basics.toString size.height ++ ", " ++ Basics.toString scale ++ ")>"
+
+        LineBreak ->
+            "<\\n>"
+
+        Word { font, fontSize, text } ->
+            "<word \"" ++ text ++ "\" (" ++ font.name ++ ", " ++ Basics.toString fontSize ++ ")>"
