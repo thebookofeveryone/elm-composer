@@ -3,6 +3,7 @@ module Composer.Text.Unit
         ( Unit(Word, Inline)
         , embed
         , fromString
+        , isWhitespace
         , size
         , text
         , toString
@@ -20,7 +21,7 @@ module Composer.Text.Unit
 
 # Querying Units
 
-@docs size, text, toString
+@docs isWhitespace, size, text, toString
 
 -}
 
