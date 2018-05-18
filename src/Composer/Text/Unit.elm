@@ -152,12 +152,19 @@ fromString codePage font fontSize text =
 -}
 toString : Unit any -> String
 toString unit =
-    case unit of
-        Inline { size, scale } ->
-            "<inline (" ++ Basics.toString size.width ++ "x" ++ Basics.toString size.height ++ ", " ++ Basics.toString scale ++ ")>"
+    let
+        unitSize =
+            size unit
 
-        LineBreak ->
-            "<\\n>"
+        unitSizeString =
+            "(" ++ Basics.toString unitSize.width ++ "x" ++ Basics.toString unitSize.height ++ ")"
+    in
+        case unit of
+            Inline _ ->
+                "<inline '" ++ unitSizeString ++ ">"
 
-        Word { font, fontSize, text } ->
-            "<word \"" ++ text ++ "\" (" ++ font.name ++ ", " ++ Basics.toString fontSize ++ ")>"
+            LineBreak ->
+                "<\\n>"
+
+            Word { text } ->
+                "<word '" ++ text ++ "' " ++ unitSizeString ++ ">"
