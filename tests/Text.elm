@@ -135,8 +135,37 @@ unit =
                                 >> E.equal spacesLength
                             ]
             ]
+        , T.describe "isWhitespace"
+            [ T.fuzz (F.intRange 1 999) "detects Word units with whitespace characters" <|
+                \count ->
+                    " "
+                        |> String.repeat count
+                        |> Unit.fromString Cp1252.codePage OpenSans.font 16
+                        |> List.head
+                        |> Maybe.andThen List.head
+                        |> Maybe.map Unit.isWhitespace
+                        |> E.equal (Just True)
+            , T.test "detects Inline units with scale equal to zero" <|
+                \() ->
+                    ()
+                        |> Unit.embed 0 { width = 1, height = 1 } Geometry.zeroOffset
+                        |> Unit.isWhitespace
+                        |> E.equal True
+            , T.test "detects Inline units with width equal to zero" <|
+                \() ->
+                    ()
+                        |> Unit.embed 1 { width = 0, height = 1 } Geometry.zeroOffset
+                        |> Unit.isWhitespace
+                        |> E.equal True
+            , T.test "detects Inline units with height equal to zero" <|
+                \() ->
+                    ()
+                        |> Unit.embed 1 { width = 1, height = 0 } Geometry.zeroOffset
+                        |> Unit.isWhitespace
+                        |> E.equal True
+            ]
         , T.describe "size"
-            [ T.test "return the proper size of a well known Word Unit" <|
+            [ T.test "return the proper size of a well-known Word Unit" <|
                 \() ->
                     "elm-composer"
                         |> Unit.fromString Cp1252.codePage OpenSans.font 16
