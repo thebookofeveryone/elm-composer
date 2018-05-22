@@ -47,14 +47,28 @@ height { bounds } =
     bounds.yMax - bounds.yMin
 
 
-lines : Model -> List String
+lines : Model -> ( Float, List String )
 lines ({ text, fontSize } as model) =
     text
         |> Unit.fromString Cp1252.codePage OpenSans.font fontSize
-        |> Text.wrap (width model)
-        |> Unit.joinWords
-        |> Unit.toParagraph
-        |> List.map (String.join " ")
+        |> Text.shrink
+            { size = { width = width model, height = height model }
+            , scaleFactor = 0.1
+            , maxSteps = 32
+            }
+        |> (\list ->
+                ( case List.head list of
+                    Just (Unit.Word { fontSize }) ->
+                        fontSize
+
+                    _ ->
+                        16
+                , list
+                    |> Unit.joinWords
+                    |> Unit.toParagraph
+                    |> List.map (String.join " ")
+                )
+           )
 
 
 setBoundsX : Float -> Model -> Model
@@ -244,20 +258,23 @@ canvas model =
             , color = "teal"
             }
         , S.g []
-            (model
-                |> lines
-                |> List.indexedMap
+            (let
+                ( fontSize, list ) =
+                    lines model
+             in
+                List.indexedMap
                     (\index line ->
                         S.text_
                             [ S.x <| toString model.bounds.xMin
-                            , S.y <| toString <| model.bounds.yMin + (toFloat (index + 1) * (lineHeight model.fontSize - descent model.fontSize))
-                            , S.fontSize <| toString model.fontSize ++ "px"
+                            , S.y <| toString <| model.bounds.yMin + (toFloat (index + 1) * lineHeight fontSize)
+                            , S.fontSize <| toString fontSize ++ "px"
                             , S.fontFamily "Open Sans"
                             , S.fill "black"
                             ]
                             [ S.text line
                             ]
                     )
+                    list
             )
         ]
 
