@@ -124,6 +124,15 @@ text =
                             )
                         |> (\expectations -> E.all expectations ())
             ]
+        , T.describe "trim"
+            [ T.test "trims a well known string" <|
+                \() ->
+                    " To The Moon   \n   wow "
+                        |> Unit.fromString Cp1252.codePage OpenSans.font 16
+                        |> Text.trim
+                        |> Unit.toParagraph
+                        |> E.equal [ [ "To", " ", "The", " ", "Moon" ], [ "wow" ] ]
+            ]
         ]
 
 
