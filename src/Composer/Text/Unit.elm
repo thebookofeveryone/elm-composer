@@ -29,7 +29,7 @@ module Composer.Text.Unit
 
 # Querying Units
 
-@docs isWhitespace, size, text, toParagraph, toString
+@docs isSingleSpace, isWhitespace, size, text, toParagraph, toString
 
 -}
 
