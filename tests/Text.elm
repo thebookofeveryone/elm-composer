@@ -16,6 +16,7 @@ import Expect as E
 import Fixtures.Cp1252 as Cp1252
 import Fixtures.OpenSans as OpenSans
 import Fuzz as F
+import Helpers.Unit as Unit
 import Test as T exposing (Test)
 
 
@@ -98,6 +99,13 @@ text =
                         |> Text.wrap 50
                         |> Unit.toParagraph
                         |> E.equal [ [ "To", " ", "The" ], [ "Moon" ] ]
+            , T.test "wrap a well known unbreakable paragraph" <|
+                \() ->
+                    "ItsOverNineThousand Yeah"
+                        |> Unit.fromString Cp1252.codePage OpenSans.font 16
+                        |> Text.wrap 50
+                        |> Unit.toParagraph
+                        |> E.equal [ [ "ItsOverNineThousand" ], [ "Yeah" ] ]
             ]
         ]
 
