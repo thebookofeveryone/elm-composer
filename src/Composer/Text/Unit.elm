@@ -1,11 +1,13 @@
 module Composer.Text.Unit
     exposing
         ( Unit(Inline, LineBreak, Word)
+        , boundingSize
         , embed
         , fromString
         , isSingleSpace
         , isWhitespace
         , joinWords
+        , scale
         , size
         , text
         , toParagraph
@@ -24,12 +26,12 @@ module Composer.Text.Unit
 
 # Transforming Units
 
-@docs joinWords
+@docs joinWords, scale
 
 
 # Querying Units
 
-@docs isSingleSpace, isWhitespace, size, text, toParagraph, toString
+@docs boundingSize, isSingleSpace, isWhitespace, size, text, toParagraph, toString
 
 -}
 
@@ -169,6 +171,21 @@ joinCompatibleWords lhs rhs =
             Nothing
 
 
+{-| Applies a factor to its size.
+-}
+scale : Float -> Unit inline -> Unit inline
+scale factor unit =
+    case unit of
+        Inline inline ->
+            Inline { inline | scale = inline.scale * factor }
+
+        LineBreak ->
+            LineBreak
+
+        Word word ->
+            Word { word | fontSize = word.fontSize * factor }
+
+
 {-| Returns the size of a unit.
 -}
 size : Unit inline -> Size
@@ -189,6 +206,41 @@ size unit =
         Inline inline ->
             { width = inline.size.width * inline.scale
             , height = inline.size.height * inline.scale
+            }
+
+
+{-| Returns the size of a list of units.
+-}
+boundingSize : List (Unit inline) -> Size
+boundingSize list =
+    list
+        |> List.foldl
+            (\unit { lineSize, boundingSize } ->
+                case unit of
+                    LineBreak ->
+                        { lineSize = { width = 0, height = 0 }
+                        , boundingSize =
+                            { width = max boundingSize.width lineSize.width
+                            , height = boundingSize.height + lineSize.height
+                            }
+                        }
+
+                    _ ->
+                        let
+                            unitSize =
+                                size unit
+                        in
+                            { lineSize =
+                                { width = lineSize.width + unitSize.width
+                                , height = max lineSize.height unitSize.height
+                                }
+                            , boundingSize = boundingSize
+                            }
+            )
+            { lineSize = { width = 0, height = 0 }, boundingSize = { width = 0, height = 0 } }
+        |> \{ lineSize, boundingSize } ->
+            { width = max boundingSize.width lineSize.width
+            , height = boundingSize.height + lineSize.height
             }
 
 

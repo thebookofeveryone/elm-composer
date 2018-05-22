@@ -1,12 +1,50 @@
-module Composer.Text exposing (wrap, trim)
+module Composer.Text
+    exposing
+        ( shrink
+        , trim
+        , wrap
+        )
 
 {-| A set of utilities to layout text.
 
-@docs wrap, trim
+@docs shrink, trim, wrap
 
 -}
 
 import Composer.Text.Unit as Unit exposing (Unit)
+import Composer.Geometry exposing (Size)
+
+
+{-| Wrap text withing a given width and height. Uses the provided scale factor
+to reduce unit sizes between steps, for example a 0.05 value means that the
+content will be reduce by steps of 5% until the content fits the required size.
+
+In order to guarantee completeness a maxSteps value is required. Higher values
+increase the accuracy of the shrinking. For a 0.05 scaleFactor, 16-32 steps are
+enough to layout text with common sizes (from 8 to 120 points).
+
+-}
+shrink : { size : Size, scaleFactor : Float, maxSteps : Int } -> List (Unit inline) -> List (Unit inline)
+shrink { size, scaleFactor, maxSteps } paragaph =
+    let
+        wrappedParagraph =
+            wrap size.width paragaph
+
+        wrappedParagraphSize =
+            Unit.boundingSize wrappedParagraph
+    in
+        if maxSteps <= 0 then
+            wrappedParagraph
+        else if wrappedParagraphSize.height > size.height then
+            paragaph
+                |> List.map (Unit.scale <| 1 - scaleFactor)
+                |> shrink
+                    { size = size
+                    , scaleFactor = scaleFactor
+                    , maxSteps = maxSteps - 1
+                    }
+        else
+            wrappedParagraph
 
 
 {-| Wrap text withing a given width.
