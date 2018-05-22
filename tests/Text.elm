@@ -99,13 +99,13 @@ text =
                         |> Text.wrap 50
                         |> Unit.toParagraph
                         |> E.equal [ [ "To", " ", "The" ], [ "Moon" ] ]
-            , T.test "wrap a well known unbreakable paragraph" <|
+            , T.test "wrap a well known unbreakable paragraph (regression)" <|
                 \() ->
-                    "ItsOverNineThousand Yeah"
+                    "ItsOverNineThousand WowToTheMoon Yeah"
                         |> Unit.fromString Cp1252.codePage OpenSans.font 16
                         |> Text.wrap 50
                         |> Unit.toParagraph
-                        |> E.equal [ [ "ItsOverNineThousand" ], [ "Yeah" ] ]
+                        |> E.equal [ [ "ItsOverNineThousand" ], [ "WowToTheMoon" ], [ "Yeah" ] ]
             , T.fuzz
                 (F.tuple
                     ( F.list <| Unit.fuzzer Cp1252.codePage OpenSans.font 16

@@ -3,6 +3,7 @@ module Composer.Text.Unit
         ( Unit(Inline, LineBreak, Word)
         , embed
         , fromString
+        , isSingleSpace
         , isWhitespace
         , joinWords
         , size
@@ -70,6 +71,19 @@ embed scale size offset content =
         , size = size
         , offset = offset
         }
+
+
+{-| Returns True if and only if an unit is a Word Unit which text is a single
+space character. See `isWhitespace` for a more useful function.
+-}
+isSingleSpace : Unit inline -> Bool
+isSingleSpace unit =
+    case unit of
+        Word word ->
+            word.text == " "
+
+        _ ->
+            False
 
 
 {-| Returns true if the unit is a whitespace. One of the following conditions

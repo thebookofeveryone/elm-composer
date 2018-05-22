@@ -26,6 +26,8 @@ wrap maxWidth paragraph =
                         if unitWidth + lineWidth > maxWidth then
                             if lineWidth <= 0 then
                                 ( unitWidth, unit :: unitList )
+                            else if Unit.isSingleSpace unit then
+                                ( 0, Unit.LineBreak :: unitList )
                             else
                                 ( unitWidth, unit :: Unit.LineBreak :: unitList )
                         else
