@@ -4,6 +4,7 @@ module Composer.Text.Unit
         , embed
         , fromString
         , isWhitespace
+        , joinWords
         , size
         , text
         , toParagraph
@@ -18,6 +19,11 @@ module Composer.Text.Unit
 # Creating Units
 
 @docs fromString, embed
+
+
+# Transforming Units
+
+@docs joinWords
 
 
 # Querying Units
@@ -93,6 +99,60 @@ isWhitespace unit =
             (inline.scale == 0)
                 || (inline.size.width == 0)
                 || (inline.size.height == 0)
+
+
+{-| Given a list of units, join all compatible adjacent words together. By
+compatible words we mean word units that have the same properties (codePage,
+font and fontSize).
+
+For example, given the following pseudo code,
+`[ Word "The", Word " ", Word "Moon", LineBreak, Word "Wow" ]` this function
+returns `[ Word "The Moon", LineBreak, Word "Wow" ]`.
+
+-}
+joinWords : List (Unit inline) -> List (Unit inline)
+joinWords list =
+    case list of
+        [] ->
+            []
+
+        head :: tail ->
+            tail
+                |> List.foldl
+                    (\unit ( last, list ) ->
+                        case joinCompatibleWords unit last of
+                            Just word ->
+                                ( word, list )
+
+                            Nothing ->
+                                ( unit, last :: list )
+                    )
+                    ( head, [] )
+                |> (\( hd, tl ) -> hd :: tl)
+                |> List.reverse
+
+
+joinCompatibleWords : Unit inline -> Unit inline -> Maybe (Unit inline)
+joinCompatibleWords lhs rhs =
+    case ( lhs, rhs ) of
+        ( Word lhsWord, Word rhsWord ) ->
+            if
+                (lhsWord.codePage == rhsWord.codePage)
+                    && (lhsWord.font == rhsWord.font)
+                    && (lhsWord.fontSize == rhsWord.fontSize)
+            then
+                Just <|
+                    Word
+                        { codePage = lhsWord.codePage
+                        , font = lhsWord.font
+                        , fontSize = lhsWord.fontSize
+                        , text = rhsWord.text ++ lhsWord.text
+                        }
+            else
+                Nothing
+
+        _ ->
+            Nothing
 
 
 {-| Returns the size of a unit.
