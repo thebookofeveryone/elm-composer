@@ -1,8 +1,8 @@
-module Composer.Text exposing (wrap)
+module Composer.Text exposing (wrap, trim)
 
 {-| A set of utilities to layout text.
 
-@docs wrap
+@docs wrap, trim
 
 -}
 
@@ -37,6 +37,8 @@ wrap maxWidth paragraph =
         |> trim
 
 
+{-| Removes spaces at the beginning and the end of each line.
+-}
 trim : List (Unit inline) -> List (Unit inline)
 trim list =
     list
