@@ -1,9 +1,17 @@
 module Composer.Text exposing (wrap)
 
+{-| A set of utilities to layout text.
+
+@docs wrap
+
+-}
+
 import Composer.Text.Unit as Unit exposing (Unit)
 
 
-wrap : Float -> List (Unit any) -> List (Unit any)
+{-| Wrap text withing a given width.
+-}
+wrap : Float -> List (Unit inline) -> List (Unit inline)
 wrap maxWidth paragraph =
     paragraph
         |> List.foldl
@@ -16,7 +24,10 @@ wrap maxWidth paragraph =
                             Unit.size unit |> .width
                     in
                         if unitWidth + lineWidth > maxWidth then
-                            ( 0, unit :: Unit.LineBreak :: unitList )
+                            if lineWidth <= 0 then
+                                ( unitWidth, unit :: unitList )
+                            else
+                                ( unitWidth, unit :: Unit.LineBreak :: unitList )
                         else
                             ( unitWidth + lineWidth, unit :: unitList )
             )
@@ -26,7 +37,7 @@ wrap maxWidth paragraph =
         |> trim
 
 
-trim : List (Unit any) -> List (Unit any)
+trim : List (Unit inline) -> List (Unit inline)
 trim list =
     list
         |> List.foldr
