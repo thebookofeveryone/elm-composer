@@ -106,6 +106,23 @@ text =
                         |> Text.wrap 50
                         |> Unit.toParagraph
                         |> E.equal [ [ "ItsOverNineThousand" ], [ "Yeah" ] ]
+            , T.fuzz
+                (F.tuple
+                    ( F.list <| Unit.fuzzer Cp1252.codePage OpenSans.font 16
+                    , F.floatRange 0 9999
+                    )
+                )
+                "wraps any text"
+              <|
+                \( paragraph, width ) ->
+                    paragraph
+                        |> Text.wrap width
+                        |> Unit.lineStats
+                        |> List.map
+                            (\{ size, count } ->
+                                always <| E.false "width larger than expected" (size.width > width && count > 1)
+                            )
+                        |> (\expectations -> E.all expectations ())
             ]
         ]
 
