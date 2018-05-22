@@ -205,6 +205,15 @@ unit =
                         |> Unit.isWhitespace
                         |> E.equal True
             ]
+        , T.describe "joinWords"
+            [ T.test "joins adjacent word of a well-known paragaph" <|
+                \() ->
+                    "To The Moon\nWow"
+                        |> Unit.fromString Cp1252.codePage OpenSans.font 16
+                        |> Unit.joinWords
+                        |> Unit.toParagraph
+                        |> E.equal [ [ "To The Moon" ], [ "Wow" ] ]
+            ]
         , T.describe "size"
             [ T.test "return the proper size of a well-known Word Unit" <|
                 \() ->
