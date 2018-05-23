@@ -91,7 +91,28 @@ font =
 text : Test
 text =
     T.describe "Text Module"
-        [ T.describe "wrap"
+        [ T.describe "shrink"
+            [ T.fuzz
+                (F.tuple
+                    ( F.list <| Unit.fuzzer Cp1252.codePage OpenSans.font 16
+                    , F.tuple ( F.floatRange 50 9999, F.floatRange 100 9999 )
+                    )
+                )
+                "always keep text paragraphs height under max value"
+              <|
+                -- NOTE that width can overflow if a word is unbreakable
+                \( paragraph, ( width, height ) ) ->
+                    paragraph
+                        |> Text.shrink
+                            { size = { width = width, height = height }
+                            , scaleFactor = 0.05
+                            , maxSteps = 64
+                            }
+                        |> Unit.boundingSize
+                        |> .height
+                        |> E.lessThan height
+            ]
+        , T.describe "wrap"
             [ T.test "returns a well known string wrapped" <|
                 \() ->
                     "To The Moon"
