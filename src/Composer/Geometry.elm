@@ -1,8 +1,16 @@
-module Composer.Geometry exposing (BoundingBox, Offset, Size, zeroBoundingBox, zeroOffset)
+module Composer.Geometry
+    exposing
+        ( BoundingBox
+        , Offset
+        , Point
+        , Size
+        , zeroBoundingBox
+        , zeroOffset
+        )
 
 {-| Some geometry basics.
 
-@docs BoundingBox, zeroBoundingBox, Offset, zeroOffset, Size
+@docs BoundingBox, zeroBoundingBox, Offset, zeroOffset, Point, Size
 
 -}
 
@@ -57,3 +65,9 @@ type alias Size =
     { width : Float
     , height : Float
     }
+
+
+{-| A position in the Cartesian coordinate system.
+-}
+type alias Point =
+    { x : Float, y : Float }
