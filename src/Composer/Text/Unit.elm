@@ -7,6 +7,7 @@ module Composer.Text.Unit
         , isSingleSpace
         , isWhitespace
         , joinWords
+        , lines
         , scale
         , size
         , text
@@ -26,7 +27,7 @@ module Composer.Text.Unit
 
 # Transforming Units
 
-@docs joinWords, scale
+@docs joinWords, lines, scale
 
 
 # Querying Units
@@ -169,6 +170,24 @@ joinCompatibleWords lhs rhs =
 
         _ ->
             Nothing
+
+
+{-| Remove LineBreak units and return a list unit lines.
+-}
+lines : List (Unit inline) -> List (List (Unit inline))
+lines unitList =
+    unitList
+        |> List.foldr
+            (\unit ( line, lineList ) ->
+                case unit of
+                    LineBreak ->
+                        ( [], line :: lineList )
+
+                    _ ->
+                        ( unit :: line, lineList )
+            )
+            ( [], [] )
+        |> (\( last, list ) -> last :: list)
 
 
 {-| Applies a factor to its size.

@@ -235,6 +235,15 @@ unit =
                         |> Unit.toParagraph
                         |> E.equal [ [ "To The Moon" ], [ "Wow" ] ]
             ]
+        , T.describe "lines"
+            [ T.test "split lines of a well-known paragraph" <|
+                \() ->
+                    "To The Moon\nWow"
+                        |> Unit.fromString Cp1252.codePage OpenSans.font 16
+                        |> Unit.lines
+                        |> List.map Unit.toParagraph
+                        |> E.equal [ [ [ "To", " ", "The", " ", "Moon" ] ], [ [ "Wow" ] ] ]
+            ]
         , T.describe "size"
             [ T.test "return the proper size of a well-known Word Unit" <|
                 \() ->
