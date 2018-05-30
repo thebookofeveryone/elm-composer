@@ -227,7 +227,7 @@ unit =
                         |> E.equal True
             ]
         , T.describe "joinWords"
-            [ T.test "joins adjacent word of a well-known paragaph" <|
+            [ T.test "joins adjacent word of a well-known paragraph" <|
                 \() ->
                     "To The Moon\nWow"
                         |> Unit.fromString Cp1252.codePage OpenSans.font 16
