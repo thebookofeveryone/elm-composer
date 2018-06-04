@@ -1,7 +1,7 @@
 module TextLayout exposing (main)
 
-import Composer.Geometry as Geometry exposing (BoundingBox)
-import Composer.Text as Text
+import Composer.Geometry as Geometry exposing (BoundingBox, Point)
+import Composer.Text as Text exposing (HorizontalAlign, LayoutOptions, LineHeight)
 import Composer.Text.Font as Font exposing (Font)
 import Composer.Text.Unit as Unit
 import Fixtures.Cp1252 as Cp1252
@@ -20,6 +20,10 @@ import Svg.Attributes as S
 type alias Model =
     { bounds : BoundingBox
     , fontSize : Float
+    , horizontalAlign : HorizontalAlign
+    , lineHeight : LineHeight
+    , lineHeightAbsolute : Float
+    , lineHeightRelative : Float
     , text : String
     }
 
@@ -33,6 +37,10 @@ empty =
         , yMax = 462
         }
     , fontSize = 16
+    , horizontalAlign = Text.Left
+    , lineHeight = Text.None
+    , lineHeightAbsolute = 20
+    , lineHeightRelative = 1
     , text = "Your bones don't break, mine do. That's clear. Your cells react to bacteria and viruses differently than mine. You don't get sick, I do. That's also clear. But for some reason, you and I react the exact same way to water. We swallow it too fast, we choke. We get some in our lungs, we drown.  However unreal it may seem, we are connected, you and I. We're on the same curve, just on opposite ends."
     }
 
@@ -47,28 +55,36 @@ height { bounds } =
     bounds.yMax - bounds.yMin
 
 
-lines : Model -> ( Float, List String )
+lines : Model -> List { text : String, fontSize : Float, origin : Point }
 lines ({ text, fontSize } as model) =
     text
         |> Unit.fromString Cp1252.codePage OpenSans.font fontSize
-        |> Text.shrink
-            { size = { width = width model, height = height model }
-            , scaleFactor = 0.1
-            , maxSteps = 32
-            }
-        |> (\list ->
-                ( case List.head list of
-                    Just (Unit.Word { fontSize }) ->
-                        fontSize
+        |> Text.layout (options model)
+        |> List.map
+            (\( point, unit ) ->
+                case unit of
+                    Unit.Word { text, fontSize } ->
+                        { text = text, fontSize = fontSize, origin = point }
 
                     _ ->
-                        16
-                , list
-                    |> Unit.joinWords
-                    |> Unit.toParagraph
-                    |> List.map (String.join " ")
-                )
-           )
+                        { text = "", fontSize = 16, origin = point }
+            )
+
+
+options : Model -> LayoutOptions
+options model =
+    { horizontalAlign = model.horizontalAlign
+    , lineAlign = Text.Baseline
+    , lineHeight = model.lineHeight
+    , lineHeightMode = Text.Even
+    , maxSteps = 64
+    , scaleFactor = 0.05
+    , size =
+        { width = model.bounds.xMax - model.bounds.xMin
+        , height = model.bounds.yMax - model.bounds.yMin
+        }
+    , verticalAlign = Text.Top
+    }
 
 
 setBoundsX : Float -> Model -> Model
@@ -96,9 +112,47 @@ setFontSize fontSize model =
     { model | fontSize = fontSize }
 
 
+setLineHeight : LineHeight -> Model -> Model
+setLineHeight lineHeight model =
+    case lineHeight of
+        Text.None ->
+            { model | lineHeight = Text.None }
+
+        Text.Absolute value ->
+            { model | lineHeight = Text.Absolute value, lineHeightAbsolute = value }
+
+        Text.Relative value ->
+            { model | lineHeight = Text.Relative value, lineHeightRelative = value }
+
+
+setHorizontalAlign : HorizontalAlign -> Model -> Model
+setHorizontalAlign horizontalAlign model =
+    { model | horizontalAlign = horizontalAlign }
+
+
 setText : String -> Model -> Model
 setText text model =
     { model | text = text }
+
+
+hasAbsoluteLineHeight : Model -> Bool
+hasAbsoluteLineHeight { lineHeight } =
+    case lineHeight of
+        Text.Absolute _ ->
+            True
+
+        _ ->
+            False
+
+
+hasRelativeLineHeight : Model -> Bool
+hasRelativeLineHeight { lineHeight } =
+    case lineHeight of
+        Text.Relative _ ->
+            True
+
+        _ ->
+            False
 
 
 
@@ -222,6 +276,99 @@ controls model =
         , H.onInput OnTextChange
         ]
         []
+    , H.h2 [] [ H.text "Layout" ]
+    , H.h3 [] [ H.text "Horizontal Align" ]
+    , H.div []
+        [ H.input
+            [ H.type_ "radio"
+            , H.id "horizontalalign-left"
+            , H.name "horizontalalign"
+            , H.checked <| model.horizontalAlign == Text.Left
+            , H.onClick <| OnHorizontalAlignChange Text.Left
+            ]
+            []
+        , H.label [ H.for "horizontalalign-left" ] [ H.text "Left" ]
+        , H.input
+            [ H.type_ "radio"
+            , H.id "horizontalalign-right"
+            , H.name "horizontalalign"
+            , H.checked <| model.horizontalAlign == Text.Right
+            , H.onClick <| OnHorizontalAlignChange Text.Right
+            ]
+            []
+        , H.label [ H.for "horizontalalign-right" ] [ H.text "Right" ]
+        , H.input
+            [ H.type_ "radio"
+            , H.id "horizontalalign-center"
+            , H.name "horizontalalign"
+            , H.checked <| model.horizontalAlign == Text.Center
+            , H.onClick <| OnHorizontalAlignChange Text.Center
+            ]
+            []
+        , H.label [ H.for "horizontalalign-center" ] [ H.text "Center" ]
+        , H.input
+            [ H.type_ "radio"
+            , H.id "horizontalalign-justify"
+            , H.name "horizontalalign"
+            , H.checked <| model.horizontalAlign == Text.Justify
+            , H.onClick <| OnHorizontalAlignChange Text.Justify
+            ]
+            []
+        , H.label [ H.for "horizontalalign-justify" ] [ H.text "Justify" ]
+        ]
+    , H.h3 [] [ H.text "Line Height" ]
+    , H.div []
+        [ H.input
+            [ H.type_ "radio"
+            , H.id "lineheight-none"
+            , H.name "lineheight"
+            , H.checked <| model.lineHeight == Text.None
+            , H.onClick <| OnLineHeightChange Text.None
+            ]
+            []
+        , H.label [ H.for "lineheight-none" ] [ H.text "None" ]
+        , H.input
+            [ H.type_ "radio"
+            , H.id "lineheight-absolute"
+            , H.name "lineheight"
+            , H.checked <| hasAbsoluteLineHeight model
+            , H.onClick <| OnLineHeightChange <| Text.Absolute model.lineHeightAbsolute
+            ]
+            []
+        , H.label [ H.for "lineheight-absolute" ] [ H.text "Absolute" ]
+        , H.input
+            [ H.type_ "number"
+            , H.style [ ( "width", "60px" ) ]
+            , H.min "0"
+            , H.max "512"
+            , H.step "1"
+            , H.value <| toString model.lineHeightAbsolute
+            , H.disabled <| not <| hasAbsoluteLineHeight model
+            , H.onInput (String.toFloat >> Result.withDefault 1 >> Text.Absolute >> OnLineHeightChange)
+            ]
+            []
+        , H.input
+            [ H.type_ "radio"
+            , H.id "lineheight-relative"
+            , H.name
+                "lineheight"
+            , H.checked <| hasRelativeLineHeight model
+            , H.onClick <| OnLineHeightChange <| Text.Relative model.lineHeightRelative
+            ]
+            []
+        , H.label [ H.for "lineheight-relative" ] [ H.text "Relative" ]
+        , H.input
+            [ H.type_ "number"
+            , H.style [ ( "width", "60px" ) ]
+            , H.min "0"
+            , H.max "512"
+            , H.step "0.1"
+            , H.value <| toString model.lineHeightRelative
+            , H.disabled <| not <| hasRelativeLineHeight model
+            , H.onInput (String.toFloat >> Result.withDefault 1 >> Text.Relative >> OnLineHeightChange)
+            ]
+            []
+        ]
     ]
 
 
@@ -258,23 +405,19 @@ canvas model =
             , color = "teal"
             }
         , S.g []
-            (let
-                ( fontSize, list ) =
-                    lines model
-             in
-                List.indexedMap
-                    (\index line ->
-                        S.text_
-                            [ S.x <| toString model.bounds.xMin
-                            , S.y <| toString <| model.bounds.yMin + (toFloat (index + 1) * lineHeight fontSize)
-                            , S.fontSize <| toString fontSize ++ "px"
-                            , S.fontFamily "Open Sans"
-                            , S.fill "black"
-                            ]
-                            [ S.text line
-                            ]
-                    )
-                    list
+            (List.map
+                (\{ text, fontSize, origin } ->
+                    S.text_
+                        [ S.x <| toString <| origin.x + model.bounds.xMin
+                        , S.y <| toString <| origin.y + model.bounds.yMin
+                        , S.fontSize <| toString fontSize ++ "px"
+                        , S.fontFamily "Open Sans"
+                        , S.fill "black"
+                        ]
+                        [ S.text text
+                        ]
+                )
+                (lines model)
             )
         ]
 
@@ -314,6 +457,8 @@ type Msg
     | OnBoundsWidthChange String
     | OnBoundsYChange String
     | OnFontSizeChange String
+    | OnHorizontalAlignChange HorizontalAlign
+    | OnLineHeightChange LineHeight
     | OnTextChange String
 
 
@@ -349,6 +494,12 @@ update msg model =
                 |> String.toFloat
                 |> Result.withDefault 16
                 |> (\v -> setFontSize v model)
+
+        OnHorizontalAlignChange horizontalAlign ->
+            setHorizontalAlign horizontalAlign model
+
+        OnLineHeightChange lineHeight ->
+            setLineHeight lineHeight model
 
         OnTextChange text ->
             setText text model
