@@ -119,36 +119,138 @@ height.
 layout : LayoutOptions -> List (Unit inline) -> List ( Point, Unit inline )
 layout opts paragraph =
     paragraph
-        |> shrink { size = opts.size, scaleFactor = opts.scaleFactor, maxSteps = opts.maxSteps }
-        |> Unit.joinWords
-        |> List.map (\unit -> ( { x = 0, y = 0 }, unit ))
+        |> shrink opts
+        |> joinWordsIfNeeded opts
+        |> Unit.lines
+        |> attachSizes
+        |> horizontalLayout opts
+        |> verticalLayout opts
+        |> List.concat
 
 
-lines : List (Unit inline) -> List ( Size, List (Unit inline) )
-lines unitList =
-    unitList
-        |> List.foldr
-            (\unit ( { width, height } as size, line, lineList ) ->
-                case unit of
-                    Unit.LineBreak ->
-                        ( { width = 0, height = 0 }, [], ( size, line ) :: lineList )
+joinWordsIfNeeded : LayoutOptions -> List (Unit inline) -> List (Unit inline)
+joinWordsIfNeeded { horizontalAlign } units =
+    if horizontalAlign == Justify then
+        units
+    else
+        Unit.joinWords units
 
-                    _ ->
-                        let
-                            unitSize =
-                                Unit.size unit
-                        in
-                            ( { width = width + unitSize.width
-                              , height = max height unitSize.height
-                              }
-                            , unit :: line
-                            , lineList
-                            )
+
+attachSizes : List (List (Unit inline)) -> List ( Size, List ( Size, Unit inline ) )
+attachSizes =
+    List.map <|
+        List.foldr
+            (\unit ( size, acc ) ->
+                let
+                    unitSize =
+                        Unit.size unit
+                in
+                    ( { width = size.width + unitSize.width
+                      , height = max size.height unitSize.height
+                      }
+                    , ( unitSize, unit ) :: acc
+                    )
             )
-            ( { width = 0, height = 0 }, [], [] )
-        |> (\( size, line, lineList ) ->
-                ( size, line ) :: lineList
-           )
+            ( { width = 0, height = 0 }, [] )
+
+
+horizontalLayout : LayoutOptions -> List ( Size, List ( Size, Unit inline ) ) -> List ( Size, List ( Point, Unit inline ) )
+horizontalLayout { size, horizontalAlign } list =
+    let
+        spread diff line =
+            line
+                |> List.foldl
+                    (\( unitSize, unit ) { xOffset, acc } ->
+                        { xOffset = xOffset + unitSize.width
+                        , acc = ( { x = xOffset + diff, y = 0 }, unit ) :: acc
+                        }
+                    )
+                    { xOffset = 0, acc = [] }
+                |> .acc
+    in
+        case horizontalAlign of
+            Left ->
+                List.map (Tuple.mapSecond <| spread 0) list
+
+            Right ->
+                List.map
+                    (\( lineSize, line ) ->
+                        ( lineSize
+                        , spread (size.width - lineSize.width) line
+                        )
+                    )
+                    list
+
+            Center ->
+                List.map
+                    (\( lineSize, line ) ->
+                        ( lineSize
+                        , spread ((size.width - lineSize.width) / 2) line
+                        )
+                    )
+                    list
+
+            Justify ->
+                let
+                    shiftedList =
+                        List.append (Maybe.withDefault [] <| List.tail list) [ ( { width = 0, height = 0 }, [] ) ]
+                in
+                    shiftedList
+                        |> List.map2 (,) list
+                        |> List.map
+                            (\( ( lineSize, line ), ( _, nextLine ) ) ->
+                                let
+                                    lineWithoutSpaces =
+                                        List.filter (not << Unit.isWhitespace << Tuple.second) line
+
+                                    nextLineWithoutSpaces =
+                                        List.filter (not << Unit.isWhitespace << Tuple.second) nextLine
+
+                                    lineWithoutSpacesWidth =
+                                        lineWithoutSpaces
+                                            |> List.map (Tuple.first >> .width)
+                                            |> List.sum
+
+                                    spaceWidth =
+                                        (size.width - lineWithoutSpacesWidth) / toFloat (List.length lineWithoutSpaces - 1)
+                                in
+                                    if List.isEmpty nextLineWithoutSpaces then
+                                        ( lineSize, spread 0 line )
+                                    else
+                                        ( { width = lineWithoutSpacesWidth, height = lineSize.height }
+                                        , lineWithoutSpaces
+                                            |> List.foldl
+                                                (\( unitSize, unit ) { xOffset, acc } ->
+                                                    { xOffset = xOffset + unitSize.width + spaceWidth
+                                                    , acc = ( { x = xOffset, y = 0 }, unit ) :: acc
+                                                    }
+                                                )
+                                                { xOffset = 0, acc = [] }
+                                            |> .acc
+                                        )
+                            )
+
+
+verticalLayout : LayoutOptions -> List ( Size, List ( Point, Unit inline ) ) -> List (List ( Point, Unit inline ))
+verticalLayout opts lineList =
+    lineList
+        |> List.foldl
+            (\( lineSize, line ) { yOffset, lineAcc } ->
+                { yOffset = yOffset + lineSize.height
+                , lineAcc =
+                    List.map
+                        (\( point, unit ) ->
+                            ( { x = point.x, y = yOffset + lineSize.height }
+                            , unit
+                            )
+                        )
+                        line
+                        :: lineAcc
+                }
+            )
+            { yOffset = 0, lineAcc = [] }
+        |> .lineAcc
+        |> List.reverse
 
 
 {-| Wrap text withing a given width and reduce the scale until it fits in the
@@ -161,27 +263,57 @@ increase the accuracy of the shrinking. For a 0.05 scaleFactor, 16-32 steps are
 enough to layout text with common sizes (from 8 to 120 points).
 
 -}
-shrink : { size : Size, scaleFactor : Float, maxSteps : Int } -> List (Unit inline) -> List (Unit inline)
-shrink { size, scaleFactor, maxSteps } paragaph =
+shrink : LayoutOptions -> List (Unit inline) -> List (Unit inline)
+shrink ({ size, scaleFactor, maxSteps } as opts) paragaph =
     let
         wrappedParagraph =
             wrap size.width paragaph
-
-        wrappedParagraphSize =
-            Unit.boundingSize wrappedParagraph
     in
         if maxSteps <= 0 then
             wrappedParagraph
-        else if wrappedParagraphSize.height > size.height then
+        else if heightAfterLayout opts wrappedParagraph > size.height then
             paragaph
                 |> List.map (Unit.scale <| 1 - scaleFactor)
-                |> shrink
-                    { size = size
-                    , scaleFactor = scaleFactor
-                    , maxSteps = maxSteps - 1
-                    }
+                |> shrink { opts | maxSteps = maxSteps - 1 }
         else
             wrappedParagraph
+
+
+heightAfterLayout : LayoutOptions -> List (Unit inline) -> Float
+heightAfterLayout { lineHeight, lineHeightMode } unitList =
+    let
+        reduceHeight { height } acc =
+            let
+                adjustedHeight =
+                    case lineHeight of
+                        None ->
+                            height
+
+                        Absolute value ->
+                            value
+
+                        Relative scale ->
+                            scale * height
+            in
+                adjustedHeight + acc
+
+        harmonizeIfNeeded sizeList =
+            case lineHeightMode of
+                Odd ->
+                    sizeList
+
+                Even ->
+                    sizeList
+                        |> List.foldl (\{ height } acc -> max height acc) 0
+                        |> \height ->
+                            { width = 0, height = height }
+                                |> List.repeat (List.length sizeList)
+    in
+        unitList
+            |> Unit.lines
+            |> List.map Unit.boundingSize
+            |> harmonizeIfNeeded
+            |> List.foldl reduceHeight 0
 
 
 {-| Wrap text withing a given width.
