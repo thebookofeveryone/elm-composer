@@ -126,6 +126,10 @@ For example, given the following pseudo code,
 `[ Word "The", Word " ", Word "Moon", LineBreak, Word "Wow" ]` this function
 returns `[ Word "The Moon", LineBreak, Word "Wow" ]`.
 
+Whitespace units that are not single spaces are never joined with other words.
+For example, `[Word "The", Word "  ", Word "Moon"]` is not joined as
+`[Word "The  Moon"]`.
+
 -}
 joinWords : List (Unit inline) -> List (Unit inline)
 joinWords list =
@@ -157,6 +161,8 @@ joinCompatibleWords lhs rhs =
                 (lhsWord.codePage == rhsWord.codePage)
                     && (lhsWord.font == rhsWord.font)
                     && (lhsWord.fontSize == rhsWord.fontSize)
+                    && not (isWhitespace lhs && (not <| isSingleSpace lhs))
+                    && not (isWhitespace rhs && (not <| isSingleSpace rhs))
             then
                 Just <|
                     Word

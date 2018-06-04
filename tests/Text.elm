@@ -234,6 +234,13 @@ unit =
                         |> Unit.joinWords
                         |> Unit.toParagraph
                         |> E.equal [ [ "To The Moon" ], [ "Wow" ] ]
+            , T.test "avoids joining multiple spaces together" <|
+                \() ->
+                    "The  Moon"
+                        |> Unit.fromString Cp1252.codePage OpenSans.font 16
+                        |> Unit.joinWords
+                        |> Unit.toParagraph
+                        |> E.equal [ [ "The", "  ", "Moon" ] ]
             ]
         , T.describe "lines"
             [ T.test "split lines of a well-known paragraph" <|
