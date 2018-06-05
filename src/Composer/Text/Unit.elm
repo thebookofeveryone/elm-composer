@@ -6,6 +6,7 @@ module Composer.Text.Unit
         , fromString
         , isSingleSpace
         , isWhitespace
+        , join
         , joinWords
         , lines
         , scale
@@ -27,7 +28,7 @@ module Composer.Text.Unit
 
 # Transforming Units
 
-@docs joinWords, lines, scale
+@docs join, joinWords, lines, scale
 
 
 # Querying Units
@@ -116,6 +117,16 @@ isWhitespace unit =
             (inline.scale == 0)
                 || (inline.size.width == 0)
                 || (inline.size.height == 0)
+
+
+{-| Join a list of unit list into a single unit list, interspersing line breaks
+between lists.
+-}
+join : List (List (Unit inline)) -> List (Unit inline)
+join lineList =
+    lineList
+        |> List.intersperse [ LineBreak ]
+        |> List.concat
 
 
 {-| Given a list of units, join all compatible adjacent words together. By
