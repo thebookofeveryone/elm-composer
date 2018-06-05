@@ -1,7 +1,7 @@
 module TextLayout exposing (main)
 
 import Composer.Geometry as Geometry exposing (BoundingBox, Point)
-import Composer.Text as Text exposing (HorizontalAlign, LayoutOptions, LineHeight)
+import Composer.Text as Text exposing (HorizontalAlign, LayoutOptions, LineHeight, VerticalAlign)
 import Composer.Text.Font as Font exposing (Font)
 import Composer.Text.Unit as Unit
 import Fixtures.Cp1252 as Cp1252
@@ -25,6 +25,7 @@ type alias Model =
     , lineHeightAbsolute : Float
     , lineHeightRelative : Float
     , text : String
+    , verticalAlign : VerticalAlign
     }
 
 
@@ -42,6 +43,7 @@ empty =
     , lineHeightAbsolute = 20
     , lineHeightRelative = 1
     , text = "Your bones don't break, mine do. That's clear. Your cells react to bacteria and viruses differently than mine. You don't get sick, I do. That's also clear. But for some reason, you and I react the exact same way to water. We swallow it too fast, we choke. We get some in our lungs, we drown.  However unreal it may seem, we are connected, you and I. We're on the same curve, just on opposite ends."
+    , verticalAlign = Text.Top
     }
 
 
@@ -83,7 +85,7 @@ options model =
         { width = model.bounds.xMax - model.bounds.xMin
         , height = model.bounds.yMax - model.bounds.yMin
         }
-    , verticalAlign = Text.Top
+    , verticalAlign = model.verticalAlign
     }
 
 
@@ -133,6 +135,11 @@ setHorizontalAlign horizontalAlign model =
 setText : String -> Model -> Model
 setText text model =
     { model | text = text }
+
+
+setVerticalAlign : VerticalAlign -> Model -> Model
+setVerticalAlign verticalAlign model =
+    { model | verticalAlign = verticalAlign }
 
 
 hasAbsoluteLineHeight : Model -> Bool
@@ -369,6 +376,36 @@ controls model =
             ]
             []
         ]
+    , H.h3 [] [ H.text "Vertical Align" ]
+    , H.div []
+        [ H.input
+            [ H.type_ "radio"
+            , H.id "verticalalign-top"
+            , H.name "verticalalign"
+            , H.checked <| model.verticalAlign == Text.Top
+            , H.onClick <| OnVerticalAlignChange Text.Top
+            ]
+            []
+        , H.label [ H.for "verticalalign-top" ] [ H.text "Top" ]
+        , H.input
+            [ H.type_ "radio"
+            , H.id "verticalalign-middle"
+            , H.name "verticalalign"
+            , H.checked <| model.verticalAlign == Text.Middle
+            , H.onClick <| OnVerticalAlignChange Text.Middle
+            ]
+            []
+        , H.label [ H.for "verticalalign-middle" ] [ H.text "Middle" ]
+        , H.input
+            [ H.type_ "radio"
+            , H.id "verticalalign-bottom"
+            , H.name "verticalalign"
+            , H.checked <| model.verticalAlign == Text.Bottom
+            , H.onClick <| OnVerticalAlignChange Text.Bottom
+            ]
+            []
+        , H.label [ H.for "verticalalign-bottom" ] [ H.text "Bottom" ]
+        ]
     ]
 
 
@@ -460,6 +497,7 @@ type Msg
     | OnHorizontalAlignChange HorizontalAlign
     | OnLineHeightChange LineHeight
     | OnTextChange String
+    | OnVerticalAlignChange VerticalAlign
 
 
 update : Msg -> Model -> Model
@@ -503,6 +541,9 @@ update msg model =
 
         OnTextChange text ->
             setText text model
+
+        OnVerticalAlignChange verticalAlign ->
+            setVerticalAlign verticalAlign model
 
 
 
