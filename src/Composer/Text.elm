@@ -283,19 +283,7 @@ heightAfterLayout : LayoutOptions -> List (Unit inline) -> Float
 heightAfterLayout { lineHeight, lineHeightMode } unitList =
     let
         reduceHeight { height } acc =
-            let
-                adjustedHeight =
-                    case lineHeight of
-                        None ->
-                            height
-
-                        Absolute value ->
-                            value
-
-                        Relative scale ->
-                            scale * height
-            in
-                adjustedHeight + acc
+            applyLineHeight lineHeight height + acc
 
         harmonizeIfNeeded sizeList =
             case lineHeightMode of
@@ -314,6 +302,19 @@ heightAfterLayout { lineHeight, lineHeightMode } unitList =
             |> List.map Unit.boundingSize
             |> harmonizeIfNeeded
             |> List.foldl reduceHeight 0
+
+
+applyLineHeight : LineHeight -> Float -> Float
+applyLineHeight lineHeight height =
+    case lineHeight of
+        None ->
+            height
+
+        Absolute value ->
+            value
+
+        Relative scale ->
+            scale * height
 
 
 {-| Wrap text withing a given width.
