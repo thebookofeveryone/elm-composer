@@ -233,24 +233,43 @@ horizontalLayout { size, horizontalAlign } list =
 
 verticalLayout : LayoutOptions -> List ( Size, List ( Point, Unit inline ) ) -> List (List ( Point, Unit inline ))
 verticalLayout opts lineList =
-    lineList
-        |> List.foldl
-            (\( lineSize, line ) { yOffset, lineAcc } ->
-                { yOffset = yOffset + lineSize.height
-                , lineAcc =
-                    List.map
-                        (\( point, unit ) ->
-                            ( { x = point.x, y = yOffset + lineSize.height }
-                            , unit
+    let
+        baseOffset =
+            case opts.verticalAlign of
+                Bottom ->
+                    opts.size.height - height
+
+                Middle ->
+                    (opts.size.height - height) / 2
+
+                _ ->
+                    0
+
+        height =
+            lineList
+                |> List.map Tuple.second
+                |> List.map (List.map Tuple.second)
+                |> Unit.join
+                |> heightAfterLayout opts
+    in
+        lineList
+            |> List.foldl
+                (\( lineSize, line ) { yOffset, lineAcc } ->
+                    { yOffset = yOffset + lineSize.height
+                    , lineAcc =
+                        List.map
+                            (\( point, unit ) ->
+                                ( { x = point.x, y = yOffset + lineSize.height + baseOffset }
+                                , unit
+                                )
                             )
-                        )
-                        line
-                        :: lineAcc
-                }
-            )
-            { yOffset = 0, lineAcc = [] }
-        |> .lineAcc
-        |> List.reverse
+                            line
+                            :: lineAcc
+                    }
+                )
+                { yOffset = 0, lineAcc = [] }
+            |> .lineAcc
+            |> List.reverse
 
 
 {-| Wrap text withing a given width and reduce the scale until it fits in the
