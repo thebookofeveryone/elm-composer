@@ -3,7 +3,7 @@ module TextLayout exposing (main)
 import Composer.Geometry as Geometry exposing (BoundingBox, Point)
 import Composer.Text as Text exposing (HorizontalAlign, LayoutOptions, LineHeight, VerticalAlign)
 import Composer.Text.Font as Font exposing (Font)
-import Composer.Text.Unit as Unit
+import Composer.Text.Unit as Unit exposing (Unit)
 import Fixtures.Cp1252 as Cp1252
 import Fixtures.OpenSans as OpenSans
 import Helpers.Svg as Helpers
@@ -58,9 +58,9 @@ height { bounds } =
 
 
 lines : Model -> List { text : String, fontSize : Float, origin : Point }
-lines ({ text, fontSize } as model) =
-    text
-        |> Unit.fromString Cp1252.codePage OpenSans.font fontSize
+lines model =
+    model
+        |> units
         |> Text.layout (options model)
         |> List.map
             (\( point, unit ) ->
@@ -73,12 +73,25 @@ lines ({ text, fontSize } as model) =
             )
 
 
+units : Model -> List (Unit inline)
+units { text, fontSize } =
+    let
+        weUnit =
+            Unit.fromString Cp1252.codePage OpenSans.font (fontSize * 2) "we "
+    in
+        text
+            |> String.split "we"
+            |> List.map (Unit.fromString Cp1252.codePage OpenSans.font fontSize)
+            |> List.intersperse weUnit
+            |> List.concat
+
+
 options : Model -> LayoutOptions
 options model =
     { horizontalAlign = model.horizontalAlign
     , lineAlign = Text.Baseline
     , lineHeight = model.lineHeight
-    , lineHeightMode = Text.Even
+    , lineHeightMode = Text.Odd
     , maxSteps = 64
     , scaleFactor = 0.05
     , size =
