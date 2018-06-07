@@ -255,17 +255,21 @@ verticalLayout opts lineList =
         lineList
             |> List.foldl
                 (\( lineSize, line ) { yOffset, lineAcc } ->
-                    { yOffset = yOffset + lineSize.height
-                    , lineAcc =
-                        List.map
-                            (\( point, unit ) ->
-                                ( { x = point.x, y = yOffset + lineSize.height + baseOffset }
-                                , unit
+                    let
+                        lineHeight =
+                            applyLineHeight opts.lineHeight lineSize.height
+                    in
+                        { yOffset = yOffset + lineHeight
+                        , lineAcc =
+                            List.map
+                                (\( point, unit ) ->
+                                    ( { x = point.x, y = yOffset + lineHeight + baseOffset }
+                                    , unit
+                                    )
                                 )
-                            )
-                            line
-                            :: lineAcc
-                    }
+                                line
+                                :: lineAcc
+                        }
                 )
                 { yOffset = 0, lineAcc = [] }
             |> .lineAcc
