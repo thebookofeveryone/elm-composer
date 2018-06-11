@@ -1,6 +1,7 @@
 module Composer.Text.Unit
     exposing
         ( Unit(Inline, LineBreak, Word)
+        , Metrics
         , embed
         , fromString
         , isSingleSpace
@@ -34,6 +35,7 @@ module Composer.Text.Unit
 
 # Querying Units
 
+@docs Metrics
 @docs isSingleSpace, isWhitespace, metrics, offset, size, text, toParagraph, toString
 
 -}
@@ -63,6 +65,13 @@ type Unit inline
         , fontSize : Float
         , text : String
         }
+
+
+{-| Layout information of a unit or a bunch of units. See metrics function for
+more information.
+-}
+type alias Metrics =
+    { size : Size, offset : Offset }
 
 
 {-| Embed any content into a unit, creating an Inline unit. The size, scale and
@@ -253,7 +262,7 @@ The dominant unit is the most highest and its offset are useful for aligning
 units around the baseline.
 
 -}
-metrics : List (Unit inline) -> { size : Size, offset : Offset }
+metrics : List (Unit inline) -> Metrics
 metrics list =
     list
         |> List.foldl
