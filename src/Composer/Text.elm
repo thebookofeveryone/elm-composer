@@ -322,7 +322,7 @@ heightAfterLayout { lineHeight, lineHeightMode } unitList =
     in
         unitList
             |> Unit.lines
-            |> List.map Unit.boundingSize
+            |> List.map (Unit.metrics >> .size)
             |> harmonizeIfNeeded
             |> List.foldl reduceHeight 0
 

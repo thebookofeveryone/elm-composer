@@ -1,7 +1,6 @@
 module Composer.Text.Unit
     exposing
         ( Unit(Inline, LineBreak, Word)
-        , boundingSize
         , embed
         , fromString
         , isSingleSpace
@@ -9,6 +8,8 @@ module Composer.Text.Unit
         , join
         , joinWords
         , lines
+        , metrics
+        , offset
         , scale
         , size
         , text
@@ -33,11 +34,11 @@ module Composer.Text.Unit
 
 # Querying Units
 
-@docs boundingSize, isSingleSpace, isWhitespace, size, text, toParagraph, toString
+@docs isSingleSpace, isWhitespace, metrics, offset, size, text, toParagraph, toString
 
 -}
 
-import Composer.Geometry exposing (Offset, Size)
+import Composer.Geometry as Geometry exposing (Offset, Size)
 import Composer.Text.Font as Font exposing (Font)
 import Composer.Text.Font.CodePage as CodePage exposing (CodePage)
 import Helpers.Char as Char
@@ -245,13 +246,18 @@ size unit =
             }
 
 
-{-| Returns the size of a list of units.
+{-| Returns the metrics of list of units. Metrics are composed by the size of
+the bounding box that contains all units, and the offset of the dominant unit.
+
+The dominant unit is the most highest and its offset are useful for aligning
+units around the baseline.
+
 -}
-boundingSize : List (Unit inline) -> Size
-boundingSize list =
+metrics : List (Unit inline) -> { size : Size, offset : Offset }
+metrics list =
     list
         |> List.foldl
-            (\unit { lineSize, boundingSize } ->
+            (\unit { lineSize, boundingSize, unitOffset } ->
                 case unit of
                     LineBreak ->
                         { lineSize = { width = 0, height = 0 }
@@ -259,25 +265,60 @@ boundingSize list =
                             { width = max boundingSize.width lineSize.width
                             , height = boundingSize.height + lineSize.height
                             }
+                        , unitOffset = unitOffset
                         }
 
                     _ ->
                         let
                             unitSize =
                                 size unit
+
+                            nextOffset =
+                                if unitSize.height > lineSize.height then
+                                    offset unit
+                                else
+                                    unitOffset
                         in
                             { lineSize =
                                 { width = lineSize.width + unitSize.width
                                 , height = max lineSize.height unitSize.height
                                 }
                             , boundingSize = boundingSize
+                            , unitOffset = nextOffset
                             }
             )
-            { lineSize = { width = 0, height = 0 }, boundingSize = { width = 0, height = 0 } }
-        |> \{ lineSize, boundingSize } ->
-            { width = max boundingSize.width lineSize.width
-            , height = boundingSize.height + lineSize.height
+            { lineSize = { width = 0, height = 0 }
+            , boundingSize = { width = 0, height = 0 }
+            , unitOffset = Geometry.zeroOffset
             }
+        |> \{ lineSize, boundingSize, unitOffset } ->
+            { size =
+                { width = max boundingSize.width lineSize.width
+                , height = boundingSize.height + lineSize.height
+                }
+            , offset = unitOffset
+            }
+
+
+{-| Returns the unit spacing offsets. For word units, all dimensions of the
+offset are set to zero but the top, which is equal to the font descent. For
+inline units, offset is the same that the unit provides.
+-}
+offset : Unit inline -> Offset
+offset unit =
+    case unit of
+        Word { font, fontSize } ->
+            { top = font.description.descent / 1000 * fontSize
+            , left = 0
+            , bottom = 0
+            , right = 0
+            }
+
+        LineBreak ->
+            Geometry.zeroOffset
+
+        Inline { offset } ->
+            offset
 
 
 {-| Returns the text of an Unit, if any.
