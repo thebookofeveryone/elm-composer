@@ -26,6 +26,7 @@ type alias Model =
     , lineHeightRelative : Float
     , text : String
     , verticalAlign : VerticalAlign
+    , verticalLineAlign : VerticalAlign
     }
 
 
@@ -44,6 +45,7 @@ empty =
     , lineHeightRelative = 1
     , text = "Your bones don't break, mine do. That's clear. Your cells react to bacteria and viruses differently than mine. You don't get sick, I do. That's also clear. But for some reason, you and I react the exact same way to water. We swallow it too fast, we choke. We get some in our lungs, we drown.  However unreal it may seem, we are connected, you and I. We're on the same curve, just on opposite ends."
     , verticalAlign = Text.Top
+    , verticalLineAlign = Text.Baseline
     }
 
 
@@ -77,10 +79,10 @@ units : Model -> List (Unit inline)
 units { text, fontSize } =
     let
         weUnit =
-            Unit.fromString Cp1252.codePage OpenSans.font (fontSize * 2) "we "
+            Unit.fromString Cp1252.codePage OpenSans.font (fontSize * 2) "We "
     in
         text
-            |> String.split "we"
+            |> String.split "We"
             |> List.map (Unit.fromString Cp1252.codePage OpenSans.font fontSize)
             |> List.intersperse weUnit
             |> List.concat
@@ -89,7 +91,7 @@ units { text, fontSize } =
 options : Model -> LayoutOptions
 options model =
     { horizontalAlign = model.horizontalAlign
-    , lineAlign = Text.Baseline
+    , lineAlign = model.verticalLineAlign
     , lineHeight = model.lineHeight
     , lineHeightMode = Text.Odd
     , maxSteps = 64
@@ -153,6 +155,11 @@ setText text model =
 setVerticalAlign : VerticalAlign -> Model -> Model
 setVerticalAlign verticalAlign model =
     { model | verticalAlign = verticalAlign }
+
+
+setVerticalLineAlign : VerticalAlign -> Model -> Model
+setVerticalLineAlign verticalLineAlign model =
+    { model | verticalLineAlign = verticalLineAlign }
 
 
 hasAbsoluteLineHeight : Model -> Bool
@@ -419,6 +426,45 @@ controls model =
             []
         , H.label [ H.for "verticalalign-bottom" ] [ H.text "Bottom" ]
         ]
+    , H.h3 [] [ H.text "Vertical Line Align" ]
+    , H.div []
+        [ H.input
+            [ H.type_ "radio"
+            , H.id "verticallinealign-top"
+            , H.name "verticallinealign"
+            , H.checked <| model.verticalLineAlign == Text.Top
+            , H.onClick <| OnVerticalLineAlignChange Text.Top
+            ]
+            []
+        , H.label [ H.for "verticallinealign-top" ] [ H.text "Top" ]
+        , H.input
+            [ H.type_ "radio"
+            , H.id "verticallinealign-middle"
+            , H.name "verticallinealign"
+            , H.checked <| model.verticalLineAlign == Text.Middle
+            , H.onClick <| OnVerticalLineAlignChange Text.Middle
+            ]
+            []
+        , H.label [ H.for "verticallinealign-middle" ] [ H.text "Middle" ]
+        , H.input
+            [ H.type_ "radio"
+            , H.id "verticallinealign-baseline"
+            , H.name "verticallinealign"
+            , H.checked <| model.verticalLineAlign == Text.Baseline
+            , H.onClick <| OnVerticalLineAlignChange Text.Baseline
+            ]
+            []
+        , H.label [ H.for "verticallinealign-baseline" ] [ H.text "Baseline" ]
+        , H.input
+            [ H.type_ "radio"
+            , H.id "verticallinealign-bottom"
+            , H.name "verticallinealign"
+            , H.checked <| model.verticalLineAlign == Text.Bottom
+            , H.onClick <| OnVerticalLineAlignChange Text.Bottom
+            ]
+            []
+        , H.label [ H.for "verticallinealign-bottom" ] [ H.text "Bottom" ]
+        ]
     ]
 
 
@@ -511,6 +557,7 @@ type Msg
     | OnLineHeightChange LineHeight
     | OnTextChange String
     | OnVerticalAlignChange VerticalAlign
+    | OnVerticalLineAlignChange VerticalAlign
 
 
 update : Msg -> Model -> Model
@@ -557,6 +604,9 @@ update msg model =
 
         OnVerticalAlignChange verticalAlign ->
             setVerticalAlign verticalAlign model
+
+        OnVerticalLineAlignChange verticalLineAlign ->
+            setVerticalLineAlign verticalLineAlign model
 
 
 
