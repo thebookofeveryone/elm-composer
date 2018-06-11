@@ -1,7 +1,7 @@
 module TextLayout exposing (main)
 
 import Composer.Geometry as Geometry exposing (BoundingBox, Point)
-import Composer.Text as Text exposing (HorizontalAlign, LayoutOptions, LineHeight, VerticalAlign)
+import Composer.Text as Text exposing (HorizontalAlign, LayoutOptions, LineHeight, LineHeightMode, VerticalAlign)
 import Composer.Text.Font as Font exposing (Font)
 import Composer.Text.Unit as Unit exposing (Unit)
 import Fixtures.Cp1252 as Cp1252
@@ -23,6 +23,7 @@ type alias Model =
     , horizontalAlign : HorizontalAlign
     , lineHeight : LineHeight
     , lineHeightAbsolute : Float
+    , lineHeightMode : LineHeightMode
     , lineHeightRelative : Float
     , text : String
     , verticalAlign : VerticalAlign
@@ -42,6 +43,7 @@ empty =
     , horizontalAlign = Text.Left
     , lineHeight = Text.None
     , lineHeightAbsolute = 20
+    , lineHeightMode = Text.Even
     , lineHeightRelative = 1
     , text = "Your bones don't break, mine do. That's clear. Your cells react to bacteria and viruses differently than mine. You don't get sick, I do. That's also clear. But for some reason, you and I react the exact same way to water. We swallow it too fast, we choke. We get some in our lungs, we drown.  However unreal it may seem, we are connected, you and I. We're on the same curve, just on opposite ends."
     , verticalAlign = Text.Top
@@ -93,7 +95,7 @@ options model =
     { horizontalAlign = model.horizontalAlign
     , lineAlign = model.verticalLineAlign
     , lineHeight = model.lineHeight
-    , lineHeightMode = Text.Odd
+    , lineHeightMode = model.lineHeightMode
     , maxSteps = 64
     , scaleFactor = 0.05
     , size =
@@ -140,6 +142,11 @@ setLineHeight lineHeight model =
 
         Text.Relative value ->
             { model | lineHeight = Text.Relative value, lineHeightRelative = value }
+
+
+setLineHeightMode : LineHeightMode -> Model -> Model
+setLineHeightMode lineHeightMode model =
+    { model | lineHeightMode = lineHeightMode }
 
 
 setHorizontalAlign : HorizontalAlign -> Model -> Model
@@ -396,6 +403,27 @@ controls model =
             ]
             []
         ]
+    , H.h3 [] [ H.text "Line Height Mode" ]
+    , H.div []
+        [ H.input
+            [ H.type_ "radio"
+            , H.id "lineheightmode-even"
+            , H.name "lineheightmode"
+            , H.checked <| model.lineHeightMode == Text.Even
+            , H.onClick <| OnLineHeightModeChange Text.Even
+            ]
+            []
+        , H.label [ H.for "lineheightmode-even" ] [ H.text "Even" ]
+        , H.input
+            [ H.type_ "radio"
+            , H.id "lineheightmode-odd"
+            , H.name "lineheightmode"
+            , H.checked <| model.lineHeightMode == Text.Odd
+            , H.onClick <| OnLineHeightModeChange Text.Odd
+            ]
+            []
+        , H.label [ H.for "lineheightmode-odd" ] [ H.text "Odd" ]
+        ]
     , H.h3 [] [ H.text "Vertical Align" ]
     , H.div []
         [ H.input
@@ -555,6 +583,7 @@ type Msg
     | OnFontSizeChange String
     | OnHorizontalAlignChange HorizontalAlign
     | OnLineHeightChange LineHeight
+    | OnLineHeightModeChange LineHeightMode
     | OnTextChange String
     | OnVerticalAlignChange VerticalAlign
     | OnVerticalLineAlignChange VerticalAlign
@@ -586,6 +615,9 @@ update msg model =
                 |> String.toFloat
                 |> Result.withDefault (height model)
                 |> (\v -> setBoundsHeight v model)
+
+        OnLineHeightModeChange lineHeightMode ->
+            setLineHeightMode lineHeightMode model
 
         OnFontSizeChange stringValue ->
             stringValue
