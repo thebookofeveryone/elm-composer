@@ -26,8 +26,8 @@ module Composer.Text
 
 -}
 
-import Composer.Text.Unit as Unit exposing (Unit)
-import Composer.Geometry exposing (Point, Size)
+import Composer.Text.Unit as Unit exposing (Unit, Metrics)
+import Composer.Geometry as Geometry exposing (Offset, Point, Size)
 
 
 {-| Options used by text layout algorithm:
@@ -136,25 +136,35 @@ joinWordsIfNeeded { horizontalAlign } units =
         Unit.joinWords units
 
 
-attachSizes : List (List (Unit inline)) -> List ( Size, List ( Size, Unit inline ) )
+attachSizes : List (List (Unit inline)) -> List ( Metrics, List ( Size, Unit inline ) )
 attachSizes =
     List.map <|
         List.foldr
-            (\unit ( size, acc ) ->
+            (\unit ( { size, offset }, acc ) ->
                 let
                     unitSize =
                         Unit.size unit
+
+                    unitOffset =
+                        Unit.offset unit
                 in
-                    ( { width = size.width + unitSize.width
-                      , height = max size.height unitSize.height
+                    ( { size =
+                            { width = size.width + unitSize.width
+                            , height = max size.height unitSize.height
+                            }
+                      , offset =
+                            if unitSize.height > size.height then
+                                unitOffset
+                            else
+                                offset
                       }
                     , ( unitSize, unit ) :: acc
                     )
             )
-            ( { width = 0, height = 0 }, [] )
+            ( { size = { width = 0, height = 0 }, offset = Geometry.zeroOffset }, [] )
 
 
-horizontalLayout : LayoutOptions -> List ( Size, List ( Size, Unit inline ) ) -> List ( Size, List ( Point, Unit inline ) )
+horizontalLayout : LayoutOptions -> List ( Metrics, List ( Size, Unit inline ) ) -> List ( Metrics, List ( Point, Unit inline ) )
 horizontalLayout { size, horizontalAlign } list =
     let
         spread diff line =
@@ -174,18 +184,18 @@ horizontalLayout { size, horizontalAlign } list =
 
             Right ->
                 List.map
-                    (\( lineSize, line ) ->
-                        ( lineSize
-                        , spread (size.width - lineSize.width) line
+                    (\( metrics, line ) ->
+                        ( metrics
+                        , spread (size.width - metrics.size.width) line
                         )
                     )
                     list
 
             Center ->
                 List.map
-                    (\( lineSize, line ) ->
-                        ( lineSize
-                        , spread ((size.width - lineSize.width) / 2) line
+                    (\( metrics, line ) ->
+                        ( metrics
+                        , spread ((size.width - metrics.size.width) / 2) line
                         )
                     )
                     list
@@ -193,12 +203,18 @@ horizontalLayout { size, horizontalAlign } list =
             Justify ->
                 let
                     shiftedList =
-                        List.append (Maybe.withDefault [] <| List.tail list) [ ( { width = 0, height = 0 }, [] ) ]
+                        List.append (Maybe.withDefault [] <| List.tail list)
+                            [ ( { size = { width = 0, height = 0 }
+                                , offset = Geometry.zeroOffset
+                                }
+                              , []
+                              )
+                            ]
                 in
                     shiftedList
                         |> List.map2 (,) list
                         |> List.map
-                            (\( ( lineSize, line ), ( _, nextLine ) ) ->
+                            (\( ( metrics, line ), ( _, nextLine ) ) ->
                                 let
                                     lineWithoutSpaces =
                                         List.filter (not << Unit.isWhitespace << Tuple.second) line
@@ -215,9 +231,11 @@ horizontalLayout { size, horizontalAlign } list =
                                         (size.width - lineWithoutSpacesWidth) / toFloat (List.length lineWithoutSpaces - 1)
                                 in
                                     if List.isEmpty nextLineWithoutSpaces then
-                                        ( lineSize, spread 0 line )
+                                        ( metrics, spread 0 line )
                                     else
-                                        ( { width = lineWithoutSpacesWidth, height = lineSize.height }
+                                        ( { size = { width = lineWithoutSpacesWidth, height = metrics.size.height }
+                                          , offset = metrics.offset
+                                          }
                                         , lineWithoutSpaces
                                             |> List.foldl
                                                 (\( unitSize, unit ) { xOffset, acc } ->
@@ -231,7 +249,7 @@ horizontalLayout { size, horizontalAlign } list =
                             )
 
 
-verticalLayout : LayoutOptions -> List ( Size, List ( Point, Unit inline ) ) -> List (List ( Point, Unit inline ))
+verticalLayout : LayoutOptions -> List ( Metrics, List ( Point, Unit inline ) ) -> List (List ( Point, Unit inline ))
 verticalLayout opts lineList =
     let
         baseOffset =
@@ -254,18 +272,27 @@ verticalLayout opts lineList =
     in
         lineList
             |> List.foldl
-                (\( lineSize, line ) { yOffset, lineAcc } ->
+                (\( metrics, line ) { yOffset, lineAcc } ->
                     let
                         lineHeight =
-                            applyLineHeight opts.lineHeight lineSize.height
+                            applyLineHeight opts.lineHeight metrics.size.height
                     in
                         { yOffset = yOffset + lineHeight
                         , lineAcc =
                             List.map
                                 (\( point, unit ) ->
-                                    ( { x = point.x, y = yOffset + lineHeight + baseOffset }
-                                    , unit
-                                    )
+                                    let
+                                        unitVerticalOffset =
+                                            lineOffset opts metrics lineHeight unitOffset unit + unitOffset.top
+
+                                        unitOffset =
+                                            Unit.offset unit
+                                    in
+                                        ( { x = point.x
+                                          , y = yOffset + lineHeight + baseOffset + unitVerticalOffset
+                                          }
+                                        , unit
+                                        )
                                 )
                                 line
                                 :: lineAcc
@@ -274,6 +301,30 @@ verticalLayout opts lineList =
                 { yOffset = 0, lineAcc = [] }
             |> .lineAcc
             |> List.reverse
+
+
+lineOffset : LayoutOptions -> Metrics -> Float -> Offset -> Unit inline -> Float
+lineOffset { lineAlign } lineMetrics lineHeight unitOffset unit =
+    case lineAlign of
+        Bottom ->
+            0
+
+        Baseline ->
+            lineMetrics.offset.top - unitOffset.top
+
+        Middle ->
+            let
+                { height } =
+                    Unit.size unit
+            in
+                -(lineHeight - height) / 2
+
+        Top ->
+            let
+                { height } =
+                    Unit.size unit
+            in
+                -(lineHeight - height)
 
 
 {-| Wrap text withing a given width and reduce the scale until it fits in the
