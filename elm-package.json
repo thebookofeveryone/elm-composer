@@ -1,7 +1,7 @@
 {
     "version": "1.0.0",
     "summary": "A (Pure Elm) 2D Graphics Composer",
-    "repository": "https://github.com/thebookofeveryone/elm-composer",
+    "repository": "https://github.com/thebookofeveryone/elm-composer.git",
     "license": "BSD3",
     "source-directories": [
         "src"
