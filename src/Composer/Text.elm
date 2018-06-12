@@ -271,6 +271,7 @@ verticalLayout opts lineList =
                 |> heightAfterLayout opts
     in
         lineList
+            |> harmonizeMetricsIfNeeded opts
             |> List.foldl
                 (\( metrics, line ) { yOffset, lineAcc } ->
                     let
@@ -303,6 +304,22 @@ verticalLayout opts lineList =
             |> List.reverse
 
 
+harmonizeMetricsIfNeeded : LayoutOptions -> List ( Metrics, any ) -> List ( Metrics, any )
+harmonizeMetricsIfNeeded { lineHeightMode } lineList =
+    case lineHeightMode of
+        Odd ->
+            lineList
+
+        Even ->
+            let
+                dominant =
+                    lineList
+                        |> List.map Tuple.first
+                        |> dominantMetrics
+            in
+                List.map (Tuple.mapFirst <| always dominant) lineList
+
+
 lineOffset : LayoutOptions -> Metrics -> Float -> Offset -> Unit inline -> Float
 lineOffset { lineAlign } lineMetrics lineHeight unitOffset unit =
     case lineAlign of
@@ -325,6 +342,18 @@ lineOffset { lineAlign } lineMetrics lineHeight unitOffset unit =
                     Unit.size unit
             in
                 -(lineHeight - height)
+
+
+dominantMetrics : List Metrics -> Metrics
+dominantMetrics =
+    List.foldl
+        (\metrics dominant ->
+            if metrics.size.height > dominant.size.height then
+                metrics
+            else
+                dominant
+        )
+        { size = { width = 0, height = 0 }, offset = Geometry.zeroOffset }
 
 
 {-| Wrap text withing a given width and reduce the scale until it fits in the
