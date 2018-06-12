@@ -123,8 +123,8 @@ layout opts paragraph =
         |> joinWordsIfNeeded opts
         |> Unit.lines
         |> attachSizes
-        |> horizontalLayout opts
-        |> verticalLayout opts
+        |> layoutHorizontally opts
+        |> layoutVertically opts
         |> List.concat
 
 
@@ -164,8 +164,8 @@ attachSizes =
             ( { size = { width = 0, height = 0 }, offset = Geometry.zeroOffset }, [] )
 
 
-horizontalLayout : LayoutOptions -> List ( Metrics, List ( Size, Unit inline ) ) -> List ( Metrics, List ( Point, Unit inline ) )
-horizontalLayout { size, horizontalAlign } list =
+layoutHorizontally : LayoutOptions -> List ( Metrics, List ( Size, Unit inline ) ) -> List ( Metrics, List ( Point, Unit inline ) )
+layoutHorizontally { size, horizontalAlign } list =
     let
         spread diff line =
             line
@@ -249,8 +249,8 @@ horizontalLayout { size, horizontalAlign } list =
                             )
 
 
-verticalLayout : LayoutOptions -> List ( Metrics, List ( Point, Unit inline ) ) -> List (List ( Point, Unit inline ))
-verticalLayout opts lineList =
+layoutVertically : LayoutOptions -> List ( Metrics, List ( Point, Unit inline ) ) -> List (List ( Point, Unit inline ))
+layoutVertically opts lineList =
     let
         baseOffset =
             case opts.verticalAlign of
