@@ -102,15 +102,16 @@ text =
               <|
                 -- NOTE that width can overflow if a word is unbreakable
                 \( paragraph, ( width, height ) ) ->
-                    paragraph
-                        |> Text.shrink
-                            { size = { width = width, height = height }
-                            , scaleFactor = 0.05
-                            , maxSteps = 64
-                            }
-                        |> Unit.boundingSize
-                        |> .height
-                        |> E.lessThan height
+                    let
+                        defaultOptions =
+                            Text.defaultOptions { width = width, height = height }
+                    in
+                        paragraph
+                            |> Text.shrink { defaultOptions | scaleFactor = 0.05, maxSteps = 64 }
+                            |> Unit.metrics
+                            |> .size
+                            |> .height
+                            |> E.lessThan height
             ]
         , T.describe "wrap"
             [ T.test "returns a well known string wrapped" <|
