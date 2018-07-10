@@ -1,6 +1,6 @@
 module Helpers.Unit exposing (fuzzer, lineStats)
 
-import Composer.Size exposing (Size)
+import Composer.Geometry.Size exposing (Size)
 import Composer.Text.Font exposing (Font)
 import Composer.Text.Font.CodePage exposing (CodePage)
 import Composer.Text.Unit as Unit exposing (Unit)

@@ -1,4 +1,4 @@
-module Composer.Point exposing (Point, origin)
+module Composer.Geometry.Point exposing (Point, origin)
 
 {-| A type to describe 2d points.
 

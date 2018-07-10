@@ -1,4 +1,4 @@
-module Composer.Size exposing (Size, zero)
+module Composer.Geometry.Size exposing (Size, zero)
 
 {-| A type to describe 2d sizes.
 

@@ -40,8 +40,8 @@ module Composer.Text.Unit
 
 -}
 
-import Composer.Size exposing (Size)
-import Composer.Offset as Offset exposing (Offset)
+import Composer.Geometry.Size exposing (Size)
+import Composer.Geometry.Offset as Offset exposing (Offset)
 import Composer.Text.Font as Font exposing (Font)
 import Composer.Text.Font.CodePage as CodePage exposing (CodePage)
 import Helpers.Char as Char

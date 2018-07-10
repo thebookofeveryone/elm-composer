@@ -1,4 +1,4 @@
-module Composer.Offset exposing (Offset, zero)
+module Composer.Geometry.Offset exposing (Offset, zero)
 
 {-| A set of four dimensions: top, left, bottom and right. Used for offsets,
 padding, margins, etc.

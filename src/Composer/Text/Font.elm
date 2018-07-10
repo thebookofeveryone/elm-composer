@@ -37,7 +37,7 @@ definitions.
 -}
 
 import Array exposing (Array)
-import Composer.BoundingBox exposing (BoundingBox)
+import Composer.Geometry.BoundingBox exposing (BoundingBox)
 import Composer.Text.Font.CodePage as CodePage exposing (CodePage)
 import Dict exposing (Dict)
 import Json.Decode as JD exposing (Decoder)

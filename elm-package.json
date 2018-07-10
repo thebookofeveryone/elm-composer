@@ -7,10 +7,10 @@
         "src"
     ],
     "exposed-modules": [
-      "Composer.BoundingBox",
-      "Composer.Offset",
-      "Composer.Point",
-      "Composer.Size",
+      "Composer.Geometry.BoundingBox",
+      "Composer.Geometry.Offset",
+      "Composer.Geometry.Point",
+      "Composer.Geometry.Size",
       "Composer.Text",
       "Composer.Text.Font",
       "Composer.Text.Font.CodePage",

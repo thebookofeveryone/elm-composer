@@ -7,7 +7,7 @@ module Text
         )
 
 import Array
-import Composer.Offset as Offset
+import Composer.Geometry.Offset as Offset
 import Composer.Text as Text
 import Composer.Text.Font as Font
 import Composer.Text.Font.CodePage as CodePage

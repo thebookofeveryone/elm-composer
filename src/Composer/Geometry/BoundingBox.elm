@@ -1,4 +1,4 @@
-module Composer.BoundingBox
+module Composer.Geometry.BoundingBox
     exposing
         ( BoundingBox
         , zero

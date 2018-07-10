@@ -26,10 +26,10 @@ module Composer.Text
 
 -}
 
+import Composer.Geometry.Offset as Offset exposing (Offset)
+import Composer.Geometry.Point exposing (Point)
+import Composer.Geometry.Size exposing (Size)
 import Composer.Text.Unit as Unit exposing (Unit, Metrics)
-import Composer.Point exposing (Point)
-import Composer.Size exposing (Size)
-import Composer.Offset as Offset exposing (Offset)
 
 
 {-| Options used by text layout algorithm:
