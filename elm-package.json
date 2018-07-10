@@ -11,6 +11,7 @@
       "Composer.Geometry.Offset",
       "Composer.Geometry.Point",
       "Composer.Geometry.Radian",
+      "Composer.Geometry.Rect",
       "Composer.Geometry.Size",
       "Composer.Geometry.Transform",
       "Composer.Text",
