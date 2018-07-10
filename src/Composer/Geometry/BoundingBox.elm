@@ -12,6 +12,7 @@ and Y values.
 -}
 
 
+{-| -}
 type alias BoundingBox =
     { xMax : Float
     , xMin : Float

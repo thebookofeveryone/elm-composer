@@ -1,14 +1,13 @@
 module Composer.Geometry.Point exposing (Point, origin)
 
-{-| A type to describe 2d points.
+{-| A type to describe positions in the Cartesian coordinate system.
 
 @docs Point, origin
 
 -}
 
 
-{-| A position in the Cartesian coordinate system.
--}
+{-| -}
 type alias Point =
     { x : Float, y : Float }
 

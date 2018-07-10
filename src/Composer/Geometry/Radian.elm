@@ -7,5 +7,6 @@ module Composer.Geometry.Radian exposing (Radian)
 -}
 
 
+{-| -}
 type alias Radian =
     Float

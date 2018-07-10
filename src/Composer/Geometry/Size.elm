@@ -1,14 +1,13 @@
 module Composer.Geometry.Size exposing (Size, zero)
 
-{-| A type to describe 2d sizes.
+{-| A type to describe 2d sizes, containing width and height.
 
 @docs Size, zero
 
 -}
 
 
-{-| A type containing width and height.
--}
+{-| -}
 type alias Size =
     { width : Float
     , height : Float
