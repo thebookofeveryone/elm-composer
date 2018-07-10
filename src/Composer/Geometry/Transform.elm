@@ -17,6 +17,7 @@ module Composer.Geometry.Transform
 
 import Composer.Geometry.Point exposing (Point)
 import Composer.Geometry.Radian exposing (Radian)
+import Composer.Geometry.Rect exposing (Rect)
 import Composer.Geometry.Size exposing (Size)
 
 
@@ -76,9 +77,15 @@ combine =
 
 {-| A transform that applies a rotating in the center of a rectangle.
 -}
-rotationFromCenter : Point -> Size -> Radian -> Transform
-rotationFromCenter { x, y } { width, height } angle =
+rotationFromCenter : Rect -> Radian -> Transform
+rotationFromCenter { origin, size } angle =
     let
+        { x, y } =
+            origin
+
+        { width, height } =
+            size
+
         w2 =
             x + width * 0.5
 
