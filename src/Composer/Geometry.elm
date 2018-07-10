@@ -1,13 +1,12 @@
 module Composer.Geometry
     exposing
         ( BoundingBox
-        , Point
         , zeroBoundingBox
         )
 
 {-| Some geometry basics.
 
-@docs BoundingBox, zeroBoundingBox, Point
+@docs BoundingBox, zeroBoundingBox
 
 -}
 
@@ -32,9 +31,3 @@ zeroBoundingBox =
     , yMax = 0
     , yMin = 0
     }
-
-
-{-| A position in the Cartesian coordinate system.
--}
-type alias Point =
-    { x : Float, y : Float }

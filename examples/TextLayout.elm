@@ -1,6 +1,7 @@
 module TextLayout exposing (main)
 
-import Composer.Geometry as Geometry exposing (BoundingBox, Point)
+import Composer.Geometry as Geometry exposing (BoundingBox)
+import Composer.Point exposing (Point)
 import Composer.Text as Text exposing (HorizontalAlign, LayoutOptions, LineHeight, LineHeightMode, VerticalAlign)
 import Composer.Text.Font as Font exposing (Font)
 import Composer.Text.Unit as Unit exposing (Unit)
