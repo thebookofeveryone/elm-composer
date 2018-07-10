@@ -27,7 +27,8 @@ module Composer.Text
 -}
 
 import Composer.Text.Unit as Unit exposing (Unit, Metrics)
-import Composer.Geometry as Geometry exposing (Offset, Point, Size)
+import Composer.Geometry as Geometry exposing (Point, Size)
+import Composer.Offset as Offset exposing (Offset)
 
 
 {-| Options used by text layout algorithm:
@@ -161,7 +162,7 @@ attachSizes =
                     , ( unitSize, unit ) :: acc
                     )
             )
-            ( { size = { width = 0, height = 0 }, offset = Geometry.zeroOffset }, [] )
+            ( { size = { width = 0, height = 0 }, offset = Offset.zero }, [] )
 
 
 layoutHorizontally : LayoutOptions -> List ( Metrics, List ( Size, Unit inline ) ) -> List ( Metrics, List ( Point, Unit inline ) )
@@ -205,7 +206,7 @@ layoutHorizontally { size, horizontalAlign } list =
                     shiftedList =
                         List.append (Maybe.withDefault [] <| List.tail list)
                             [ ( { size = { width = 0, height = 0 }
-                                , offset = Geometry.zeroOffset
+                                , offset = Offset.zero
                                 }
                               , []
                               )
@@ -353,7 +354,7 @@ dominantMetrics =
             else
                 dominant
         )
-        { size = { width = 0, height = 0 }, offset = Geometry.zeroOffset }
+        { size = { width = 0, height = 0 }, offset = Offset.zero }
 
 
 {-| Wrap text withing a given width and reduce the scale until it fits in the

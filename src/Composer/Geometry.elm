@@ -1,16 +1,14 @@
 module Composer.Geometry
     exposing
         ( BoundingBox
-        , Offset
         , Point
         , Size
         , zeroBoundingBox
-        , zeroOffset
         )
 
 {-| Some geometry basics.
 
-@docs BoundingBox, zeroBoundingBox, Offset, zeroOffset, Point, Size
+@docs BoundingBox, zeroBoundingBox, Point, Size
 
 -}
 
@@ -34,28 +32,6 @@ zeroBoundingBox =
     , xMin = 0
     , yMax = 0
     , yMin = 0
-    }
-
-
-{-| A set of four dimensions: top, left, bottom and right. Used for offsets,
-padding, margins, etc.
--}
-type alias Offset =
-    { top : Float
-    , left : Float
-    , bottom : Float
-    , right : Float
-    }
-
-
-{-| An offset with all the dimensions set to zero.
--}
-zeroOffset : Offset
-zeroOffset =
-    { top = 0
-    , left = 0
-    , bottom = 0
-    , right = 0
     }
 
 

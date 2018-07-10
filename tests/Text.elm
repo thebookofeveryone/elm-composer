@@ -7,7 +7,7 @@ module Text
         )
 
 import Array
-import Composer.Geometry as Geometry
+import Composer.Offset as Offset
 import Composer.Text as Text
 import Composer.Text.Font as Font
 import Composer.Text.Font.CodePage as CodePage
@@ -211,19 +211,19 @@ unit =
             , T.test "detects Inline units with scale equal to zero" <|
                 \() ->
                     ()
-                        |> Unit.embed 0 { width = 1, height = 1 } Geometry.zeroOffset
+                        |> Unit.embed 0 { width = 1, height = 1 } Offset.zero
                         |> Unit.isWhitespace
                         |> E.equal True
             , T.test "detects Inline units with width equal to zero" <|
                 \() ->
                     ()
-                        |> Unit.embed 1 { width = 0, height = 1 } Geometry.zeroOffset
+                        |> Unit.embed 1 { width = 0, height = 1 } Offset.zero
                         |> Unit.isWhitespace
                         |> E.equal True
             , T.test "detects Inline units with height equal to zero" <|
                 \() ->
                     ()
-                        |> Unit.embed 1 { width = 1, height = 0 } Geometry.zeroOffset
+                        |> Unit.embed 1 { width = 1, height = 0 } Offset.zero
                         |> Unit.isWhitespace
                         |> E.equal True
             ]
@@ -264,7 +264,7 @@ unit =
             , T.fuzz (F.tuple3 ( F.float, F.float, F.float )) "return the proper size of any Inline unit" <|
                 \( width, height, scale ) ->
                     ()
-                        |> Unit.embed scale { width = width, height = height } Geometry.zeroOffset
+                        |> Unit.embed scale { width = width, height = height } Offset.zero
                         |> Unit.size
                         |> E.equal
                             { width = width * scale

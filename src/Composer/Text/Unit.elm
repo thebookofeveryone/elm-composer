@@ -40,7 +40,8 @@ module Composer.Text.Unit
 
 -}
 
-import Composer.Geometry as Geometry exposing (Offset, Size)
+import Composer.Geometry as Geometry exposing (Size)
+import Composer.Offset as Offset exposing (Offset)
 import Composer.Text.Font as Font exposing (Font)
 import Composer.Text.Font.CodePage as CodePage exposing (CodePage)
 import Helpers.Char as Char
@@ -298,7 +299,7 @@ metrics list =
             )
             { lineSize = { width = 0, height = 0 }
             , boundingSize = { width = 0, height = 0 }
-            , unitOffset = Geometry.zeroOffset
+            , unitOffset = Offset.zero
             }
         |> \{ lineSize, boundingSize, unitOffset } ->
             { size =
@@ -324,7 +325,7 @@ offset unit =
             }
 
         LineBreak ->
-            Geometry.zeroOffset
+            Offset.zero
 
         Inline { offset } ->
             offset
