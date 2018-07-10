@@ -40,7 +40,7 @@ module Composer.Text.Unit
 
 -}
 
-import Composer.Geometry as Geometry exposing (Size)
+import Composer.Size exposing (Size)
 import Composer.Offset as Offset exposing (Offset)
 import Composer.Text.Font as Font exposing (Font)
 import Composer.Text.Font.CodePage as CodePage exposing (CodePage)

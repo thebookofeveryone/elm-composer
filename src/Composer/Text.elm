@@ -27,7 +27,8 @@ module Composer.Text
 -}
 
 import Composer.Text.Unit as Unit exposing (Unit, Metrics)
-import Composer.Geometry as Geometry exposing (Point, Size)
+import Composer.Geometry as Geometry exposing (Point)
+import Composer.Size exposing (Size)
 import Composer.Offset as Offset exposing (Offset)
 
 

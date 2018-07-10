@@ -2,13 +2,12 @@ module Composer.Geometry
     exposing
         ( BoundingBox
         , Point
-        , Size
         , zeroBoundingBox
         )
 
 {-| Some geometry basics.
 
-@docs BoundingBox, zeroBoundingBox, Point, Size
+@docs BoundingBox, zeroBoundingBox, Point
 
 -}
 
@@ -32,14 +31,6 @@ zeroBoundingBox =
     , xMin = 0
     , yMax = 0
     , yMin = 0
-    }
-
-
-{-| A width and height pair.
--}
-type alias Size =
-    { width : Float
-    , height : Float
     }
 
 
