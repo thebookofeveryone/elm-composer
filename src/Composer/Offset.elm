@@ -1,15 +1,13 @@
 module Composer.Offset exposing (Offset, zero)
 
-{-| A type useful for define paddings, margins, etc.
+{-| A set of four dimensions: top, left, bottom and right. Used for offsets,
+padding, margins, etc.
 
 @docs Offset, zero
 
 -}
 
 
-{-| A set of four dimensions: top, left, bottom and right. Used for offsets,
-padding, margins, etc.
--}
 type alias Offset =
     { top : Float
     , left : Float

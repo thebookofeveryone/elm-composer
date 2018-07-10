@@ -1,19 +1,17 @@
-module Composer.Geometry
+module Composer.BoundingBox
     exposing
         ( BoundingBox
-        , zeroBoundingBox
+        , zero
         )
 
-{-| Some geometry basics.
+{-| A BoundingBox is a rectangular box in 2D defined by a minimum and maximum X
+and Y values.
 
-@docs BoundingBox, zeroBoundingBox
+@docs BoundingBox, zero
 
 -}
 
 
-{-| An axis-aligned bounding box (also known as AABB). A box aligned with
-coordinate axes and enclosing some object.
--}
 type alias BoundingBox =
     { xMax : Float
     , xMin : Float
@@ -24,8 +22,8 @@ type alias BoundingBox =
 
 {-| An BoundingBox with all the dimensions set to zero.
 -}
-zeroBoundingBox : BoundingBox
-zeroBoundingBox =
+zero : BoundingBox
+zero =
     { xMax = 0
     , xMin = 0
     , yMax = 0
