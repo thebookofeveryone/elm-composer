@@ -1,24 +1,24 @@
 module Composer.Geometry.Transform
     exposing
         ( Transform
+        , apply
         , identity
         , multiply
-        , translate
         , rotation
-        , combine
-        , rotationFromCenter
+        , translate
         )
 
 {-| A 2D linear transform represented by 3x2 matix.
 
-@docs Transform , identity , multiply , translate , rotation , combine , rotationFromCenter
+@docs Transform
+
+@docs identity, multiply, apply, translate, rotation
 
 -}
 
 import Composer.Geometry.Point exposing (Point)
 import Composer.Geometry.Radian exposing (Radian)
 import Composer.Geometry.Rect exposing (Rect)
-import Composer.Geometry.Size exposing (Size)
 
 
 {-| -}
@@ -47,6 +47,15 @@ multiply ( m11, m12, m21, m22, m31, m32 ) ( n11, n12, n21, n22, n31, n32 ) =
     )
 
 
+{-| Apply a transform to a point.
+-}
+apply : Transform -> Point -> Point
+apply ( m11, m12, m21, m22, m31, m32 ) { x, y } =
+    { x = m11 * x + m21 * y + m31
+    , y = m12 * x + m22 * y + m32
+    }
+
+
 {-| A Transform that represents a translation to a point.
 -}
 translate : Point -> Transform
@@ -66,34 +75,3 @@ rotation r =
             sin r
     in
         ( c, s, s * -1, c, 0, 0 )
-
-
-{-| Combines multiple transforms applying matrix product in reverse order.
--}
-combine : List Transform -> Transform
-combine =
-    List.foldr (\m a -> multiply a m) identity
-
-
-{-| A transform that applies a rotating in the center of a rectangle.
--}
-rotationFromCenter : Rect -> Radian -> Transform
-rotationFromCenter { origin, size } angle =
-    let
-        { x, y } =
-            origin
-
-        { width, height } =
-            size
-
-        w2 =
-            x + width * 0.5
-
-        h2 =
-            y + height * 0.5
-    in
-        combine
-            [ translate { x = -w2, y = -h2 }
-            , rotation angle
-            , translate { x = w2, y = -h2 }
-            ]
