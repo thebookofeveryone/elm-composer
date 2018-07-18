@@ -14,6 +14,8 @@
       "Composer.Geometry.Rect",
       "Composer.Geometry.Size",
       "Composer.Geometry.Transform",
+      "Composer.Scene",
+      "Composer.Scene.Entity",
       "Composer.Primitive",
       "Composer.Text",
       "Composer.Text.Font",
