@@ -3,6 +3,8 @@ module Composer.Text.Unit
         ( Unit(Inline, LineBreak, Word)
         , Metrics
         , embed
+        , font
+        , fontSize
         , fromString
         , isSingleSpace
         , isWhitespace
@@ -36,7 +38,8 @@ module Composer.Text.Unit
 # Querying Units
 
 @docs Metrics
-@docs isSingleSpace, isWhitespace, metrics, offset, size, text, toParagraph, toString
+@docs isSingleSpace, isWhitespace, metrics, offset, font, fontSize, size, text
+@docs toParagraph, toString
 
 -}
 
@@ -334,6 +337,36 @@ text unit =
     case unit of
         Word { text } ->
             Just text
+
+        LineBreak ->
+            Nothing
+
+        Inline _ ->
+            Nothing
+
+
+{-| Returns the font of an Unit, if any.
+-}
+font : Unit inline -> Maybe Font
+font unit =
+    case unit of
+        Word word ->
+            Just word.font
+
+        LineBreak ->
+            Nothing
+
+        Inline _ ->
+            Nothing
+
+
+{-| Returns the font size of an Unit, if any.
+-}
+fontSize : Unit inline -> Maybe Float
+fontSize unit =
+    case unit of
+        Word word ->
+            Just word.fontSize
 
         LineBreak ->
             Nothing
