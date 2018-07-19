@@ -4,6 +4,7 @@ module Composer.Geometry.Transform
         , apply
         , identity
         , multiply
+        , combine
         , translate
         , scale
         , rotation
@@ -11,7 +12,7 @@ module Composer.Geometry.Transform
 
 {-| A 2D linear transform represented by 3x2 matix.
 
-@docs Transform, identity, multiply, apply
+@docs Transform, identity, multiply, combine, apply
 
 
 # Planar Transformations
@@ -54,6 +55,13 @@ multiply ( m11, m12, m21, m22, m31, m32 ) ( n11, n12, n21, n22, n31, n32 ) =
     , m11 * n31 + m21 * n32 + m31
     , m12 * n31 + m22 * n32 + m32
     )
+
+
+{-| Combine multiple transform by multiplying them.
+-}
+combine : List Transform -> Transform
+combine =
+    List.foldl multiply identity
 
 
 {-| Apply a transform to a point.
