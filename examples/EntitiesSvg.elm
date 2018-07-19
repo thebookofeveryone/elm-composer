@@ -6,6 +6,8 @@ import Composer.Geometry.Transform as Transform
 import Composer.Scene as Scene exposing (Scene)
 import Composer.Scene.Entity as Entity
 import Composer.Scene.Shape as Shape
+import Composer.Text as Text
+import Fixtures.OpenSans as OpenSans
 import Html as H exposing (Html)
 import Html.Attributes as H
 
@@ -24,6 +26,7 @@ main =
                 --, layout
                 , transformsAndCompositing
                 , textures
+                , text
                 ]
         )
 
@@ -298,6 +301,74 @@ textures =
                                         ( { width = 300, height = 222 }
                                         , "https://upload.wikimedia.org/wikipedia/en/thumb/5/5f/Original_Doge_meme.jpg/300px-Original_Doge_meme.jpg"
                                         )
+                                    )
+                            )
+                }
+          }
+        ]
+    }
+
+
+text : Unit
+text =
+    { title = "Text"
+    , cases =
+        [ { title = "A simple bounded text"
+          , scene =
+                { size = { width = 512, height = 512 }
+                , root =
+                    Entity.empty "parent"
+                        |> Entity.setShape (Just <| Shape.Rectangle { width = 512, height = 512 })
+                        |> Entity.setColor Color.darkBlue
+                        |> Entity.addChild
+                            (Entity.empty "box"
+                                |> Entity.setShape (Just <| Shape.Rectangle { width = 300, height = 300 })
+                                |> Entity.setColor Color.blue
+                                |> Entity.setTransform (Transform.translate { x = 106, y = 106 })
+                                |> Entity.addChild
+                                    (Entity.empty "text"
+                                        |> Entity.setTextLayoutOptions (Text.defaultOptions { width = 300, height = 300 })
+                                        |> Entity.setText
+                                            (Just
+                                                { text = "Now that we know who you are, I know who I am. I'm not a mistake! It all makes sense! In a comic, you know how you can tell who the arch-villain's going to be? He's the exact opposite of the hero. And most times they're friends, like you and me! I should've known way back when... You know why, David? Because of the kids. They called me Mr Glass."
+                                                , fontSize = 50
+                                                , font = OpenSans.font
+                                                }
+                                            )
+                                    )
+                            )
+                }
+          }
+        , { title = "A styled text"
+          , scene =
+                { size = { width = 512, height = 512 }
+                , root =
+                    Entity.empty "parent"
+                        |> Entity.setShape (Just <| Shape.Rectangle { width = 512, height = 512 })
+                        |> Entity.setColor Color.darkBlue
+                        |> Entity.addChild
+                            (Entity.empty "box"
+                                |> Entity.setShape (Just <| Shape.Rectangle { width = 300, height = 300 })
+                                |> Entity.setColor Color.blue
+                                |> Entity.setTransform
+                                    (Transform.combine
+                                        [ Transform.translate { x = -150, y = -150 }
+                                        , Transform.scale { x = 1.2, y = 1.2 }
+                                        , Transform.rotation <| -45 * pi / 180
+                                        , Transform.translate { x = 256, y = 256 }
+                                        ]
+                                    )
+                                |> Entity.addChild
+                                    (Entity.empty "text"
+                                        |> Entity.setTextLayoutOptions (Text.defaultOptions { width = 300, height = 300 })
+                                        |> Entity.setColor Color.yellow
+                                        |> Entity.setText
+                                            (Just
+                                                { text = "You think water moves fast? You should see ice. It moves like it has a mind. Like it knows it killed the world once and got a taste for murder. After the avalanche, it took us a week to climb out. Now, I don't know exactly when we turned on each other, but I know that seven of us survived the slide... and only five made it out. Now we took an oath, that I'm breaking now. We said we'd say it was the snow that killed the other two, but it wasn't. Nature is lethal but it doesn't hold a candle to man."
+                                                , fontSize = 50
+                                                , font = OpenSans.font
+                                                }
+                                            )
                                     )
                             )
                 }
