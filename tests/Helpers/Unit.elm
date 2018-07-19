@@ -2,13 +2,12 @@ module Helpers.Unit exposing (fuzzer, lineStats)
 
 import Composer.Geometry.Size exposing (Size)
 import Composer.Text.Font exposing (Font)
-import Composer.Text.Font.CodePage exposing (CodePage)
 import Composer.Text.Unit as Unit exposing (Unit)
 import Fuzz as F exposing (Fuzzer)
 
 
-fuzzer : CodePage -> Font -> Float -> Fuzzer (Unit inline)
-fuzzer codePage font fontSize =
+fuzzer : Font -> Float -> Fuzzer (Unit inline)
+fuzzer font fontSize =
     F.frequency
         [ ( 1, F.constant Unit.LineBreak )
         , ( 9
@@ -21,8 +20,7 @@ fuzzer codePage font fontSize =
                 |> F.map
                     (\text ->
                         Unit.Word
-                            { codePage = codePage
-                            , font = font
+                            { font = font
                             , fontSize = fontSize
                             , text = text
                             }

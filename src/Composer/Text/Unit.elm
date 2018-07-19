@@ -43,7 +43,6 @@ module Composer.Text.Unit
 import Composer.Geometry.Size exposing (Size)
 import Composer.Geometry.Offset as Offset exposing (Offset)
 import Composer.Text.Font as Font exposing (Font)
-import Composer.Text.Font.CodePage as CodePage exposing (CodePage)
 import Helpers.Char as Char
 import Helpers.String as String
 
@@ -61,8 +60,7 @@ type Unit inline
         }
     | LineBreak
     | Word
-        { codePage : CodePage
-        , font : Font
+        { font : Font
         , fontSize : Float
         , text : String
         }
@@ -180,16 +178,14 @@ joinCompatibleWords lhs rhs =
     case ( lhs, rhs ) of
         ( Word lhsWord, Word rhsWord ) ->
             if
-                (lhsWord.codePage == rhsWord.codePage)
-                    && (lhsWord.font == rhsWord.font)
+                (lhsWord.font == rhsWord.font)
                     && (lhsWord.fontSize == rhsWord.fontSize)
                     && not (isWhitespace lhs && (not <| isSingleSpace lhs))
                     && not (isWhitespace rhs && (not <| isSingleSpace rhs))
             then
                 Just <|
                     Word
-                        { codePage = lhsWord.codePage
-                        , font = lhsWord.font
+                        { font = lhsWord.font
                         , fontSize = lhsWord.fontSize
                         , text = rhsWord.text ++ lhsWord.text
                         }
@@ -240,7 +236,7 @@ size unit =
     case unit of
         Word word ->
             { width =
-                Font.stringWidth word.codePage word.font word.text / 1000 * word.fontSize
+                Font.stringWidth word.font word.text / 1000 * word.fontSize
             , height =
                 (word.font.description.boundingBox.yMax - word.font.description.boundingBox.yMin)
                     / 1000
@@ -349,11 +345,11 @@ text unit =
 {-| Converts a string into a bunch of units. A Font, CodePage and FontSize are
 also needed.
 -}
-fromString : CodePage -> Font -> Float -> String -> List (Unit any)
-fromString codePage font fontSize text =
+fromString : Font -> Float -> String -> List (Unit any)
+fromString font fontSize text =
     let
         toUnit word =
-            Word { text = word, fontSize = fontSize, font = font, codePage = codePage }
+            Word { text = word, fontSize = fontSize, font = font }
     in
         text
             |> String.lines

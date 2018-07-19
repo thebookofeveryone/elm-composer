@@ -58,31 +58,31 @@ font =
             [ T.test "returns a known glyph width" <|
                 \() ->
                     'a'
-                        |> Font.glyphWidth Cp1252.codePage OpenSans.font
+                        |> Font.glyphWidth OpenSans.font
                         |> E.equal 556
             , T.test "fallback to default width if an unknown glyph is provided" <|
                 \() ->
                     '💩'
-                        |> Font.glyphWidth Cp1252.codePage OpenSans.font
+                        |> Font.glyphWidth OpenSans.font
                         |> E.equal (.missingWidth <| .description <| OpenSans.font)
             ]
         , T.describe "kerning"
             [ T.test "returns a known glyph pair distance" <|
                 \() ->
                     'e'
-                        |> Font.kerning Cp1252.codePage OpenSans.font 'T'
+                        |> Font.kerning OpenSans.font 'T'
                         |> E.equal -70
             ]
         , T.describe "stringWidth"
             [ T.test "returns a known string width" <|
                 \() ->
                     "foobar"
-                        |> Font.stringWidth Cp1252.codePage OpenSans.font
+                        |> Font.stringWidth OpenSans.font
                         |> E.equal 3124
             , T.test "returns zero when the string is empty" <|
                 \() ->
                     ""
-                        |> Font.stringWidth Cp1252.codePage OpenSans.font
+                        |> Font.stringWidth OpenSans.font
                         |> E.equal 0
             ]
         ]
@@ -94,7 +94,7 @@ text =
         [ T.describe "shrink"
             [ T.fuzz
                 (F.tuple
-                    ( F.list <| Unit.fuzzer Cp1252.codePage OpenSans.font 16
+                    ( F.list <| Unit.fuzzer OpenSans.font 16
                     , F.tuple ( F.floatRange 50 9999, F.floatRange 100 9999 )
                     )
                 )
@@ -117,20 +117,20 @@ text =
             [ T.test "returns a well known string wrapped" <|
                 \() ->
                     "To The Moon"
-                        |> Unit.fromString Cp1252.codePage OpenSans.font 16
+                        |> Unit.fromString OpenSans.font 16
                         |> Text.wrap 50
                         |> Unit.toParagraph
                         |> E.equal [ [ "To", " ", "The" ], [ "Moon" ] ]
             , T.test "wrap a well known unbreakable paragraph (regression)" <|
                 \() ->
                     "ItsOverNineThousand WowToTheMoon Yeah"
-                        |> Unit.fromString Cp1252.codePage OpenSans.font 16
+                        |> Unit.fromString OpenSans.font 16
                         |> Text.wrap 50
                         |> Unit.toParagraph
                         |> E.equal [ [ "ItsOverNineThousand" ], [ "WowToTheMoon" ], [ "Yeah" ] ]
             , T.fuzz
                 (F.tuple
-                    ( F.list <| Unit.fuzzer Cp1252.codePage OpenSans.font 16
+                    ( F.list <| Unit.fuzzer OpenSans.font 16
                     , F.floatRange 0 9999
                     )
                 )
@@ -150,7 +150,7 @@ text =
             [ T.test "trims a well known string" <|
                 \() ->
                     " To The Moon   \n   wow "
-                        |> Unit.fromString Cp1252.codePage OpenSans.font 16
+                        |> Unit.fromString OpenSans.font 16
                         |> Text.trim
                         |> Unit.toParagraph
                         |> E.equal [ [ "To", " ", "The", " ", "Moon" ], [ "wow" ] ]
@@ -165,18 +165,18 @@ unit =
             [ T.test "returns an empty list when an empty string is provided" <|
                 \() ->
                     ""
-                        |> Unit.fromString Cp1252.codePage OpenSans.font 16
+                        |> Unit.fromString OpenSans.font 16
                         |> E.equal []
             , T.test "manages a well known string" <|
                 \() ->
                     " To the  Moon   "
-                        |> Unit.fromString Cp1252.codePage OpenSans.font 16
+                        |> Unit.fromString OpenSans.font 16
                         |> List.map (Unit.text >> Maybe.withDefault "")
                         |> E.equal [ " ", "To", " ", "the", "  ", "Moon", "   " ]
             , T.fuzz (F.intRange 1 9999) "keeps spaces at the beginning of the string" <|
                 \spacesLength ->
                     (String.repeat spacesLength " " ++ "foobar")
-                        |> Unit.fromString Cp1252.codePage OpenSans.font 16
+                        |> Unit.fromString OpenSans.font 16
                         |> E.all
                             [ List.length >> E.equal 2
                             , List.head
@@ -188,7 +188,7 @@ unit =
             , T.fuzz (F.intRange 1 9999) "keeps spaces at the end of the string" <|
                 \spacesLength ->
                     ("foobar" ++ String.repeat spacesLength " ")
-                        |> Unit.fromString Cp1252.codePage OpenSans.font 16
+                        |> Unit.fromString OpenSans.font 16
                         |> E.all
                             [ List.length >> E.equal 2
                             , List.reverse
@@ -204,7 +204,7 @@ unit =
                 \count ->
                     " "
                         |> String.repeat count
-                        |> Unit.fromString Cp1252.codePage OpenSans.font 16
+                        |> Unit.fromString OpenSans.font 16
                         |> List.head
                         |> Maybe.map Unit.isWhitespace
                         |> E.equal (Just True)
@@ -231,14 +231,14 @@ unit =
             [ T.test "joins adjacent word of a well-known paragraph" <|
                 \() ->
                     "To The Moon\nWow"
-                        |> Unit.fromString Cp1252.codePage OpenSans.font 16
+                        |> Unit.fromString OpenSans.font 16
                         |> Unit.joinWords
                         |> Unit.toParagraph
                         |> E.equal [ [ "To The Moon" ], [ "Wow" ] ]
             , T.test "avoids joining multiple spaces together" <|
                 \() ->
                     "The  Moon"
-                        |> Unit.fromString Cp1252.codePage OpenSans.font 16
+                        |> Unit.fromString OpenSans.font 16
                         |> Unit.joinWords
                         |> Unit.toParagraph
                         |> E.equal [ [ "The", "  ", "Moon" ] ]
@@ -247,7 +247,7 @@ unit =
             [ T.test "split lines of a well-known paragraph" <|
                 \() ->
                     "To The Moon\nWow"
-                        |> Unit.fromString Cp1252.codePage OpenSans.font 16
+                        |> Unit.fromString OpenSans.font 16
                         |> Unit.lines
                         |> List.map Unit.toParagraph
                         |> E.equal [ [ [ "To", " ", "The", " ", "Moon" ] ], [ [ "Wow" ] ] ]
@@ -256,7 +256,7 @@ unit =
             [ T.test "return the proper size of a well-known Word Unit" <|
                 \() ->
                     "elm-composer"
-                        |> Unit.fromString Cp1252.codePage OpenSans.font 16
+                        |> Unit.fromString OpenSans.font 16
                         |> List.head
                         |> Maybe.map Unit.size
                         |> Maybe.withDefault { width = 0, height = 0 }

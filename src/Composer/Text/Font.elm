@@ -67,6 +67,7 @@ type alias Description =
 
 {-| A font record.
 
+  - `codePage`: the codePage of this font.
   - `description`: common information for all glyphs.
   - `kernings`: distance between character pairs.
   - `name`: the font name, in English.
@@ -78,7 +79,8 @@ type alias Description =
 type alias Font =
     -- ignored: Up (Underline Position), Ut (Underline Thickness),
     -- Diff (Encoding Differences), File, Size1, Size2, OriginalSize, N and I.
-    { description : Description
+    { codePage : CodePage
+    , description : Description
     , kernings : Dict ( Int, Int ) Float
     , name : String
     , type_ : Type
@@ -97,7 +99,8 @@ type Type
 -}
 empty : Font
 empty =
-    { description =
+    { codePage = CodePage.empty
+    , description =
         { ascent = 0
         , boundingBox =
             { xMax = 0
@@ -121,9 +124,10 @@ empty =
 [gofpdf](https://godoc.org/github.com/jung-kurt/gofpdf#hdr-Nonstandard_Fonts)
 format is used.
 -}
-decoder : Decoder Font
-decoder =
-    JD.map5 Font
+decoder : CodePage -> Decoder Font
+decoder codePage =
+    JD.map6 Font
+        (JD.succeed codePage)
         (JD.field "Desc" descriptionDecoder)
         (JD.field "Ck" kerningsDecoder)
         (JD.field "Name" JD.string)
@@ -131,12 +135,11 @@ decoder =
         (JD.field "Cw" <| JD.map Array.fromList <| JD.list JD.float)
 
 
-{-| Returns the glyph with give an character. A CodePage is also needed to
-resolve the character codepoint.
+{-| Returns the glyph with give an character.
 -}
-glyphWidth : CodePage -> Font -> Char -> Float
-glyphWidth codePage font char =
-    case CodePage.index char codePage of
+glyphWidth : Font -> Char -> Float
+glyphWidth font char =
+    case CodePage.index char font.codePage of
         Just index ->
             font.widths
                 |> Array.get index
@@ -147,11 +150,11 @@ glyphWidth codePage font char =
 
 
 {-| Returns the [kerning](https://en.wikipedia.org/wiki/Kerning) given a pair of
-chars. A CodePage is also needed to resolve the character codepoint.
+chars.
 -}
-kerning : CodePage -> Font -> Char -> Char -> Float
-kerning codePage font lhsChar rhsChar =
-    case ( CodePage.index lhsChar codePage, CodePage.index rhsChar codePage ) of
+kerning : Font -> Char -> Char -> Float
+kerning font lhsChar rhsChar =
+    case ( CodePage.index lhsChar font.codePage, CodePage.index rhsChar font.codePage ) of
         ( Just lhsIndex, Just rhsIndex ) ->
             font.kernings
                 |> Dict.get ( lhsIndex, rhsIndex )
@@ -164,15 +167,15 @@ kerning codePage font lhsChar rhsChar =
 {-| Returns the with of a given string. This function is similar to glyphWidth
 but also takes into account the glyphs kerning.
 -}
-stringWidth : CodePage -> Font -> String -> Float
-stringWidth codePage font string =
+stringWidth : Font -> String -> Float
+stringWidth font string =
     let
         stringList =
             String.toList string
 
         glyphListWidth =
             stringList
-                |> List.map (glyphWidth codePage font)
+                |> List.map (glyphWidth font)
                 |> List.sum
 
         kerningListWidth =
@@ -180,7 +183,7 @@ stringWidth codePage font string =
                 |> List.tail
                 |> Maybe.withDefault []
                 |> List.map2 (,) stringList
-                |> List.map (\( lhs, rhs ) -> kerning codePage font lhs rhs)
+                |> List.map (\( lhs, rhs ) -> kerning font lhs rhs)
                 |> List.sum
     in
         glyphListWidth + kerningListWidth

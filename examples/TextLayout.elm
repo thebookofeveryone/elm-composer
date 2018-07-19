@@ -5,7 +5,6 @@ import Composer.Geometry.Point exposing (Point)
 import Composer.Text as Text exposing (HorizontalAlign, LayoutOptions, LineHeight, LineHeightMode, VerticalAlign)
 import Composer.Text.Font as Font exposing (Font)
 import Composer.Text.Unit as Unit exposing (Unit)
-import Fixtures.Cp1252 as Cp1252
 import Fixtures.OpenSans as OpenSans
 import Helpers.Svg as Helpers
 import Html as H exposing (Html)
@@ -82,11 +81,11 @@ units : Model -> List (Unit inline)
 units { text, fontSize } =
     let
         weUnit =
-            Unit.fromString Cp1252.codePage OpenSans.font (fontSize * 2) "We "
+            Unit.fromString OpenSans.font (fontSize * 2) "We "
     in
         text
             |> String.split "We"
-            |> List.map (Unit.fromString Cp1252.codePage OpenSans.font fontSize)
+            |> List.map (Unit.fromString OpenSans.font fontSize)
             |> List.intersperse weUnit
             |> List.concat
 

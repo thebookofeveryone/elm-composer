@@ -1,6 +1,7 @@
 module Fixtures.OpenSans exposing (font)
 
 import Composer.Text.Font as Font exposing (Font)
+import Fixtures.Cp1252 as Cp1252
 import Json.Decode as JD
 
 
@@ -480,5 +481,5 @@ font =
        "DiffN":0
     }
     """
-        |> JD.decodeString Font.decoder
+        |> JD.decodeString (Font.decoder Cp1252.codePage)
         |> Result.withDefault Font.empty

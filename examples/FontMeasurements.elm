@@ -1,7 +1,6 @@
 module FontMeasurements exposing (main)
 
 import Composer.Text.Font as Font exposing (Font)
-import Fixtures.Cp1252 as Cp1252
 import Fixtures.OpenSans as OpenSans
 import Helpers.Svg as Helpers
 import Html as H exposing (Html)
@@ -107,7 +106,7 @@ view ( text, fontSize ) =
 
 textWidth : Int -> String -> Float
 textWidth fontSize text =
-    toPxUnits fontSize <| Font.stringWidth Cp1252.codePage font text
+    toPxUnits fontSize <| Font.stringWidth font text
 
 
 ox : Int -> String -> Float
