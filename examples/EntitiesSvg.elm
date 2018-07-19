@@ -287,6 +287,7 @@ textures =
                                 |> Entity.setTransform
                                     (Transform.combine
                                         [ Transform.translate { x = -150, y = -111 }
+                                        , Transform.scale { x = 1.25, y = 1.25 }
                                         , Transform.rotation <| 45 * pi / 180
                                         , Transform.translate { x = 256, y = 256 }
                                         ]
