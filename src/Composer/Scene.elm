@@ -27,6 +27,9 @@ import Composer.Geometry.Transform as Transform exposing (Transform)
 import Composer.Primitive as Primitive exposing (Primitive)
 import Composer.Scene.Entity as Entity exposing (Entity)
 import Composer.Scene.Shape as Shape
+import Composer.Text as Text
+import Composer.Text.Unit as TextUnit
+import Composer.Text.Font as Font
 
 
 {-| -}
@@ -70,6 +73,7 @@ walk context entity =
         List.concat
             [ shape context entity
             , texture context entity
+            , text context entity
             , children
             ]
 
@@ -87,6 +91,32 @@ shape context entity =
                 size
                 (color context entity)
             ]
+
+
+text : Context -> Entity -> List Primitive
+text context entity =
+    case Entity.text entity of
+        Nothing ->
+            []
+
+        Just { font, fontSize, text } ->
+            let
+                t =
+                    transform context entity
+            in
+                text
+                    |> TextUnit.fromString font fontSize
+                    |> Text.layout (Entity.textLayoutOptions entity)
+                    |> List.indexedMap
+                        (\index ( point, unit ) ->
+                            Primitive.Text
+                                (Entity.identifier entity ++ "-" ++ toString index)
+                                (Transform.multiply t <| Transform.translate point)
+                                (Maybe.withDefault 0 <| TextUnit.fontSize unit)
+                                (color context entity)
+                                font.name
+                                (Maybe.withDefault "" <| TextUnit.text unit)
+                        )
 
 
 texture : Context -> Entity -> List Primitive

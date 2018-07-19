@@ -24,6 +24,12 @@ module Composer.Scene.Entity
         , Uri
         , texture
         , setTexture
+          -- Text --
+        , Text
+        , text
+        , textLayoutOptions
+        , setText
+        , setTextLayoutOptions
         )
 
 {-| A graphical entity. By default an entity is just a named node of a tree.
@@ -69,12 +75,19 @@ image to the center of the screen.
 
 @docs Uri, texture, setTexture
 
+
+## Texture
+
+@docs Text, text, textLayoutOptions, setText, setTextLayoutOptions
+
 -}
 
 import Color exposing (Color)
 import Composer.Geometry.Size exposing (Size)
 import Composer.Geometry.Transform as Transform exposing (Transform)
 import Composer.Scene.Shape exposing (Shape)
+import Composer.Text as Text
+import Composer.Text.Font as Text exposing (Font)
 
 
 {-| -}
@@ -82,11 +95,13 @@ type Entity
     = Entity
         { id : Id
         , children : Children
-        , transform : Transform
-        , shape : Maybe Shape
         , color : Color
         , opacity : Float
+        , shape : Maybe Shape
+        , text : Maybe Text
+        , textLayoutOptions : Text.LayoutOptions
         , texture : Maybe ( Size, Uri )
+        , transform : Transform
         }
 
 
@@ -104,11 +119,13 @@ empty id =
     Entity
         { id = id
         , children = Children []
-        , transform = Transform.identity
-        , shape = Nothing
         , color = Color.white
         , opacity = 1
+        , shape = Nothing
+        , text = Nothing
+        , textLayoutOptions = Text.defaultOptions { width = 0, height = 0 }
         , texture = Nothing
+        , transform = Transform.identity
         }
 
 
@@ -244,3 +261,44 @@ texture (Entity entity) =
 setTexture : Maybe ( Size, Uri ) -> Entity -> Entity
 setTexture texture (Entity entity) =
     Entity { entity | texture = texture }
+
+
+
+-- Text --
+
+
+{-| A piece of text with its font and its font size.
+-}
+type alias Text =
+    { font : Font
+    , fontSize : Float
+    , text : String
+    }
+
+
+{-| Sets the text of an entity.
+-}
+text : Entity -> Maybe Text
+text (Entity entity) =
+    entity.text
+
+
+{-| Returns the text layout options of an entity.
+-}
+textLayoutOptions : Entity -> Text.LayoutOptions
+textLayoutOptions (Entity entity) =
+    entity.textLayoutOptions
+
+
+{-| Sets or removes the text and the font of an entity.
+-}
+setText : Maybe Text -> Entity -> Entity
+setText text (Entity entity) =
+    Entity { entity | text = text }
+
+
+{-| Sets the text layout options of an entity.
+-}
+setTextLayoutOptions : Text.LayoutOptions -> Entity -> Entity
+setTextLayoutOptions textLayoutOptions (Entity entity) =
+    Entity { entity | textLayoutOptions = textLayoutOptions }

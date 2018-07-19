@@ -13,6 +13,7 @@ import Composer.Geometry.Transform exposing (Transform)
 import Composer.Primitive as Primitive exposing (Primitive)
 import Svg as S exposing (Svg, Attribute)
 import Svg.Attributes as S
+import Svg.Attributes as Svg
 
 
 {-| -}
@@ -36,6 +37,18 @@ renderPrimitive primitive =
                 , fillColor color
                 ]
                 []
+
+        Primitive.Text id t fontSize color fontName text ->
+            S.text_
+                [ S.id id
+                , S.x "0"
+                , S.y "0"
+                , S.fontSize <| toString fontSize
+                , Svg.style <| "font-family:" ++ fontName
+                , transform t
+                , fillColor color
+                ]
+                [ S.text text ]
 
         Primitive.Texture id t opacity { width, height } uri ->
             S.image
