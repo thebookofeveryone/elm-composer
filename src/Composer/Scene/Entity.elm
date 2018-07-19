@@ -7,7 +7,7 @@ module Composer.Scene.Entity
         , identifier
         , children
         , setChildren
-        , addChildren
+        , addChild
           -- Transform --
         , transform
         , setTransform
@@ -18,7 +18,6 @@ module Composer.Scene.Entity
         , opacity
         , setOpacity
           -- Shape --
-        , Shape
         , shape
         , setShape
           -- Texture --
@@ -40,7 +39,7 @@ image to the center of the screen.
 
 # Basics
 
-@docs Entity, Id, empty, identifier, children, addChildren, setChildren
+@docs Entity, Id, empty, identifier, children, addChild, setChildren
 
 
 # Components
@@ -63,7 +62,7 @@ image to the center of the screen.
 
 ## Shape
 
-@docs Shape, shape, setShape
+@docs shape, setShape
 
 
 ## Texture
@@ -75,6 +74,7 @@ image to the center of the screen.
 import Color exposing (Color)
 import Composer.Geometry.Size exposing (Size)
 import Composer.Geometry.Transform as Transform exposing (Transform)
+import Composer.Scene.Shape exposing (Shape)
 
 
 {-| -}
@@ -86,7 +86,7 @@ type Entity
         , shape : Maybe Shape
         , color : Color
         , opacity : Float
-        , texture : Maybe Uri
+        , texture : Maybe ( Size, Uri )
         }
 
 
@@ -143,8 +143,8 @@ setChildren children (Entity entity) =
 
 {-| Add a child to an entity.
 -}
-addChildren : Entity -> Entity -> Entity
-addChildren child (Entity entity) =
+addChild : Entity -> Entity -> Entity
+addChild child (Entity entity) =
     let
         (Children children) =
             entity.children
@@ -212,12 +212,6 @@ setOpacity opacity (Entity entity) =
 -- Shape --
 
 
-{-| A set of shapes that can be draw as entities.
--}
-type Shape
-    = RectangleShape Size
-
-
 {-| Return the shape of an entity, if any.
 -}
 shape : Entity -> Maybe Shape
@@ -240,13 +234,13 @@ type alias Uri =
 
 {-| Return the texture of an entity, if any.
 -}
-texture : Entity -> Maybe Uri
+texture : Entity -> Maybe ( Size, Uri )
 texture (Entity entity) =
     entity.texture
 
 
 {-| Sets or removes the shape of an entity.
 -}
-setTexture : Maybe Uri -> Entity -> Entity
+setTexture : Maybe ( Size, Uri ) -> Entity -> Entity
 setTexture texture (Entity entity) =
     Entity { entity | texture = texture }

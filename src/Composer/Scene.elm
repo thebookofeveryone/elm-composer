@@ -1,6 +1,7 @@
 module Composer.Scene
     exposing
         ( Scene
+        , compose
         )
 
 {-| A `Scene` is set of graphical entities arranged in a spatial representation.
@@ -16,12 +17,16 @@ The `compose` function translate this scene representation into a flatten set
 of primitives that can be consumed by other backend renderers (pdf, svg, canvas,
 webgl, etc).
 
-@docs Scene
+@docs Scene, compose
 
 -}
 
+import Color exposing (Color)
 import Composer.Geometry.Size exposing (Size)
-import Composer.Scene.Entity exposing (Entity)
+import Composer.Geometry.Transform as Transform exposing (Transform)
+import Composer.Primitive as Primitive exposing (Primitive)
+import Composer.Scene.Entity as Entity exposing (Entity)
+import Composer.Scene.Shape as Shape
 
 
 {-| -}
@@ -29,3 +34,91 @@ type alias Scene =
     { root : Entity
     , size : Size
     }
+
+
+{-| Reduce a scene to list of primitives.
+-}
+compose : Scene -> List Primitive
+compose { root } =
+    walk
+        { transform = Transform.identity
+        , opacity = 1
+        }
+        root
+
+
+type alias Context =
+    { transform : Transform
+    , opacity : Float
+    }
+
+
+walk : Context -> Entity -> List Primitive
+walk context entity =
+    let
+        innerContext =
+            { transform = transform context entity
+            , opacity = opacity context entity
+            }
+
+        children =
+            entity
+                |> Entity.children
+                |> List.map (walk innerContext)
+                |> List.concat
+    in
+        List.concat
+            [ shape context entity
+            , texture context entity
+            , children
+            ]
+
+
+shape : Context -> Entity -> List Primitive
+shape context entity =
+    case Entity.shape entity of
+        Nothing ->
+            []
+
+        Just (Shape.Rectangle size) ->
+            [ Primitive.Rectangle
+                (Entity.identifier entity)
+                (transform context entity)
+                size
+                (color context entity)
+            ]
+
+
+texture : Context -> Entity -> List Primitive
+texture context entity =
+    case Entity.texture entity of
+        Nothing ->
+            []
+
+        Just ( size, uri ) ->
+            [ Primitive.Texture
+                (Entity.identifier entity)
+                (transform context entity)
+                (opacity context entity)
+                size
+                uri
+            ]
+
+
+transform : Context -> Entity -> Transform
+transform context entity =
+    Transform.multiply context.transform <| Entity.transform entity
+
+
+color : Context -> Entity -> Color
+color context entity =
+    let
+        { red, green, blue, alpha } =
+            Color.toRgb <| Entity.color entity
+    in
+        Color.rgba red green blue (context.opacity * Entity.opacity entity * alpha)
+
+
+opacity : Context -> Entity -> Float
+opacity context entity =
+    context.opacity * (Entity.opacity entity)
