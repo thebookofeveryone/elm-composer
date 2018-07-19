@@ -4,24 +4,33 @@ module Composer.Geometry.Transform
         , apply
         , identity
         , multiply
-        , rotation
         , translate
+        , scale
+        , rotation
         )
 
 {-| A 2D linear transform represented by 3x2 matix.
 
-@docs Transform
+@docs Transform, identity, multiply, apply
 
-@docs identity, multiply, apply, translate, rotation
+
+# Planar Transformations
+
+@docs translate, scale, rotation
 
 -}
 
 import Composer.Geometry.Point exposing (Point)
 import Composer.Geometry.Radian exposing (Radian)
-import Composer.Geometry.Rect exposing (Rect)
 
 
-{-| -}
+{-| A 2D transform, only meaningfully cells are kept:
+
+    | m11 m21 m31 |
+    | m12 m22 m32 | -> (m11, m12, m21, m22, m31, m32) = Transform
+    |  0   0   1  |
+
+-}
 type alias Transform =
     --  m11    m12    m21    m22    m31    m32
     ( Float, Float, Float, Float, Float, Float )
@@ -61,6 +70,13 @@ apply ( m11, m12, m21, m22, m31, m32 ) { x, y } =
 translate : Point -> Transform
 translate { x, y } =
     ( 1, 0, 0, 1, x, y )
+
+
+{-| A Transform that represents a scaling operation.
+-}
+scale : Point -> Transform
+scale { x, y } =
+    ( x, 0, 0, y, 0, 0 )
 
 
 {-| A Transform that represents a ration of the given radians.
