@@ -373,10 +373,16 @@ shrink ({ size, scaleFactor, maxSteps } as opts) paragaph =
     let
         wrappedParagraph =
             wrap size.width paragaph
+
+        wrappedHeight =
+            heightAfterLayout opts wrappedParagraph
+
+        wrappedWidth =
+            .width <| .size <| Unit.metrics wrappedParagraph
     in
         if maxSteps <= 0 then
             wrappedParagraph
-        else if heightAfterLayout opts wrappedParagraph > size.height then
+        else if wrappedHeight > size.height || wrappedWidth > size.width then
             paragaph
                 |> List.map (Unit.scale <| 1 - scaleFactor)
                 |> shrink { opts | maxSteps = maxSteps - 1 }
