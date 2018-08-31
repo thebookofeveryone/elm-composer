@@ -29,7 +29,6 @@ import Composer.Scene.Entity as Entity exposing (Entity)
 import Composer.Scene.Shape as Shape
 import Composer.Text as Text
 import Composer.Text.Unit as TextUnit
-import Composer.Text.Font as Font
 
 
 {-| -}
