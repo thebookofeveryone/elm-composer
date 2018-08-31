@@ -1,6 +1,6 @@
 module Composer.Backend.Svg exposing (render)
 
-{-| Converts a list of primitive in a svg node ready to use as part of an HTML
+{-| Converts a list of primitives in a svg node ready to use as part of an HTML
 document.
 
 @docs render
@@ -11,6 +11,7 @@ import Color exposing (Color)
 import Composer.Geometry.Size exposing (Size)
 import Composer.Geometry.Transform exposing (Transform)
 import Composer.Primitive as Primitive exposing (Primitive)
+import Helpers.Color as Color
 import Svg as S exposing (Svg, Attribute)
 import Svg.Attributes as S
 import Svg.Attributes as Svg
@@ -80,28 +81,11 @@ transform t =
 
 fillColor : Color -> Attribute msg
 fillColor color =
-    S.fill <| rgbaColorString color
+    S.fill <| Color.toRgbaString color
 
 
 
 -- Misc Helpers --
-
-
-rgbaColorString : Color -> String
-rgbaColorString color =
-    let
-        { red, green, blue, alpha } =
-            Color.toRgb color
-    in
-        "rgba("
-            ++ toString red
-            ++ ","
-            ++ toString green
-            ++ ","
-            ++ toString blue
-            ++ ","
-            ++ toString alpha
-            ++ ")"
 
 
 matrixString : Transform -> String
