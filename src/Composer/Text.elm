@@ -106,8 +106,8 @@ defaultOptions size =
     , lineAlign = Baseline
     , lineHeight = None
     , lineHeightMode = Even
-    , maxSteps = 32
-    , scaleFactor = 0.05
+    , maxSteps = 64
+    , scaleFactor = 0.025
     , size = size
     , verticalAlign = Top
     }
