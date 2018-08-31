@@ -7,6 +7,8 @@
         "src"
     ],
     "exposed-modules": [
+        "Composer.Backend.Immediate",
+        "Composer.Backend.Immediate.Command",
         "Composer.Backend.Svg",
         "Composer.Geometry.BoundingBox",
         "Composer.Geometry.Offset",
